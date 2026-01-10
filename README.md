@@ -106,7 +106,11 @@ Product <-> OrderItem {
 
 * `POST /api/auth/login` (Público) - Login com retorno de Access e Refresh Token.
 
-### Produtos e Pedidos
+### Permissões
+
+*NOTA: Endpoints para CRUD perms users*
+
+### Produtos
 
 * `GET /api/products` (Público) - Lista todos os produtos com paginação.
 
