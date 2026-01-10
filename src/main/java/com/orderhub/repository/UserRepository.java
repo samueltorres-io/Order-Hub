@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface User extends JpaRepository<User, UUID> {
+import com.orderhub.entity.User;
+
+public interface UserRepository extends JpaRepository<User, UUID> {
 
 }
