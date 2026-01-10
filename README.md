@@ -2,7 +2,7 @@
 
 *Sistema escalável de pedidos com arquitetura orientada a eventos, observabilidade e infraestrutura como código*
 
-Este projeto é uma API Backend robusta que simula o core de um e-commerce. O foco principal foi aplicar padrões de **Sistemas Distribuídos**, garantindo que a criação de pedidos, atualização de estoque e notificações ocorram de forma resiliente e eventual consistente na **AWS**.
+Este projeto é uma API Backend robusta que simula o core de um e-commerce. O foco principal foi aplicar padrões de **Sistemas Distribuídos**, garantindo que a criação de pedidos, atualização de estoque e notificações ocorram de forma resiliente e eventual consistente na **AWS**, integrando serviços gerenciados externos para otimização de custos.
 
 ---
 
@@ -12,13 +12,13 @@ O projeto utiliza uma arquitetura orientada a eventos para garantir desacoplamen
 
 1. **Criação de Pedido:** O usuário solicita um pedido via API REST.
 
-2. **Persistência e Outbox:** O pedido é salvo no **Amazon RDS**, e um registro de "evento pendente" é salvo na mesma transação (**Transactional Outbox Pattern**).
+2. **Persistência e Outbox:** O pedido é salvo no **Amazon RDS**, e um registro de "evento pendente" é salvo na mesma transação (**Transactional Outbox Pattern**), garantindo atomicidade.
 
-3. **Mensageria (Kafka):** Um worker lê a tabela de outbox e publica no **Amazon MSK**.
+3. **Mensageria (Kafka):** Um worker (Scheduler ou Debezium) lê a tabela de outbox e publica o evento em um cluster **Apache Kafka externo (SaaS)**.
 
-4. **Consumo e Estoque:** O serviço de inventário consome o evento e atualiza o saldo de produtos.
+4. **Consumo e Estoque:** O componente de inventário consome o evento do tópico, valida a disponibilidade e atualiza o saldo de produtos no banco de dados.
 
-5. **Notificação:** Um evento de sucesso dispara uma mensagem para o **Amazon SNS**, que simula o envio de e-mails/push.
+5. **Notificação:** Após o processamento, um evento dispara uma mensagem para o **Amazon SNS**, que simula o envio de e-mails/push de confirmação ao cliente.
 
 ---
 
@@ -27,9 +27,9 @@ O projeto utiliza uma arquitetura orientada a eventos para garantir desacoplamen
 | Camada | Tecnologia | Motivação |
 | --- | --- | --- |
 | **Linguagem** | Java 21 + Spring Boot 3 | Aproveitando as Virtual Threads e melhorias de performance. |
-| **Banco de Dados** | Amazon RDS (Postgres) | Banco relacional robusto para consistência ACID. |
-| **Mensageria** | Amazon MSK (Kafka) | Alta vazão para eventos de domínio e histórico de pedidos. |
-| **Notificação** | Amazon SNS | Notificação ao usuário e setores |
+| **Banco de Dados** | Amazon RDS (Postgres) | Banco relacional robusto para consistência ACID e suporte ao Outbox Pattern. |
+| **Mensageria** | **Apache Kafka (SaaS)** | Uso de provedor gerenciado (Confluent Cloud/Upstash) para reduzir custos operacionais mantendo alta vazão e padrão de mercado. |
+| **Notificação** | Amazon SNS | Integração nativa AWS para notificações Pub/Sub escaláveis. |
 | **Cache/Sessão** | Amazon ElastiCache (Redis) | Gerenciamento de tokens JWT e Refresh Tokens com alta performance. |
 | **Infraestrutura** | AWS App Runner | Deploy de containers automático com auto-scaling simplificado. |
 | **IaC** | Terraform | Garantia de que toda a infraestrutura é versionada e reproduzível. |
@@ -52,9 +52,9 @@ A aplicação está preparada para ambientes produtivos:
 
 ### Resiliência
 
-* **Transactional Outbox:** Evita a perda de mensagens caso o broker (Kafka) esteja fora do ar no momento da compra.
+* **Transactional Outbox:** Garante que nenhum pedido seja perdido mesmo que o broker de mensagens esteja instável no momento da compra. O evento é persistido no banco primeiro e enviado posteriormente.
 
-* **Idempotência:** Consumidores preparados para processar a mesma mensagem múltiplas vezes sem duplicar a baixa no estoque.
+* **Idempotência:** Consumidores preparados para processar a mesma mensagem múltiplas vezes (devido a retentativas de rede) sem duplicar a baixa no estoque ou cobranças.
 
 ---
 
@@ -106,7 +106,14 @@ Product <-> OrderItem {
 
 * `POST /api/auth/login` (Público) - Login com retorno de Access e Refresh Token.
 
-### Produtos e Pedidos
+### Permissões
+
+* `POST /api/admin/users/{id}/roles` (Admin) - Atribui nova permissão a um usuário.
+
+* `DELETE /api/admin/users/{id}/roles/{role}` (Admin) - Remove permissão.
+
+
+### Produtos
 
 * `GET /api/products` (Público) - Lista todos os produtos com paginação.
 
