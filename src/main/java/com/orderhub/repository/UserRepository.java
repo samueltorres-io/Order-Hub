@@ -9,6 +9,6 @@ import com.orderhub.entity.User;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
 
-    Optional<User> existsByEmail(String email);
+    Optional<User> findByEmail(String email);
 
 }
