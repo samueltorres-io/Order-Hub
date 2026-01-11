@@ -2,6 +2,7 @@ package com.orderhub.service;
 
 import org.springframework.stereotype.Service;
 
+import com.orderhub.dto.auth.request.Login;
 import com.orderhub.dto.auth.request.Register;
 import com.orderhub.dto.auth.response.AuthResponse;
 import com.orderhub.entity.User;
@@ -23,6 +24,17 @@ public class AuthService {
         /* Geração de tokens ... */
 
         return AuthResponse.fromEntity(savedUser, null, null);
+
+    }
+
+    @Transactional
+    private AuthResponse login(Login req) {
+
+        User user = userService.login(req);
+
+        /* Geração de tokens */
+
+        return AuthResponse.fromEntity(user, null, null);
 
     }
 
