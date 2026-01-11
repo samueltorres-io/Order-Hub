@@ -10,13 +10,14 @@ public enum ErrorCode {
     INVALID_INPUT("ERR_INVALID_INPUT", "Invalid input data"),
     NOT_FOUND("ERR_NOT_FOUND", "Resource not found"),
     GONE("ERR_GONE", "Resource no longer available"),
-    BAD_REQUEST("ERR_BAD_REQUEST", "..."),
+    BAD_REQUEST("ERR_BAD_REQUEST", "Bad request"),
 
     /* User & Auth */
     USR_ALREADY_EXISTS("ERR_USER_ALREADY_EXISTS", "User already exists"),
     USR_NOT_FOUND("ERR_USER_NOT_FOUND", "User not found"),
     UNAUTHORIZED("ERR_UNAUTHORIZED", "Unauthorized access"),
-    INVALID_CREDENTIALS("ERR_INVALID_CREDENTIALS", "Invalid Credentials"),
+    INVALID_CREDENTIALS("ERR_INVALID_CREDENTIALS", "Invalid email or password"), // Mensagem genérica é mais segura
+    WEAK_PASSWORD("ERR_WEAK_PASSWORD", "Password does not meet security requirements"), // Novo
     INVALID_TOKEN("ERR_INVALID_TOKEN", "Invalid or expired token"),
     TOKEN_EXPIRED("ERR_TOKEN_EXPIRED", "Token expired"),
 
@@ -37,6 +38,4 @@ public enum ErrorCode {
         this.code = code;
         this.defaultMessage = defaultMessage;
     }
-
-
 }
