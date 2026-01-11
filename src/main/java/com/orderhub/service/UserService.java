@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.orderhub.dto.auth.request.Login;
 import com.orderhub.dto.auth.request.Register;
 import com.orderhub.entity.User;
 import com.orderhub.repository.UserRepository;
@@ -31,7 +32,7 @@ public class UserService {
             /* throw new AppError... */
         }
 
-        Optional<User> emailExist = userRepository.existsByEmail(req.email());
+        Optional<User> emailExist = userRepository.findByEmail(req.email());
         if (!emailExist.isEmpty()) {
             /* throw new AppError... credenciais inválidas para evitar dizer que email já existe no serviço */
         }
@@ -63,6 +64,49 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(req.password()));
 
         return userRepository.save(user);
+
+    }
+
+    @Transactional
+    public User login(Login req) {
+
+        if (req.email().isBlank() || req.email().isEmpty()) {
+            /* throw new AppError ... */
+        }
+
+        Optional<User> userOptional = userRepository.findByEmail(req.email());
+        if (!userOptional.isEmpty()) {
+            /* throw new AppError... */
+        }
+
+        if (req.password().isBlank() || req.password().isEmpty()) {
+            /* throw new AppError... */
+        }
+
+        /**
+         * Has minimum 8 characters in length.
+         * At least one uppercase English letter.
+         * At least one lowercase English letter.
+         * At least one digit.
+         * At least one special character.
+         * 
+        */
+        boolean isMatch = Pattern.compile("/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/")
+                .matcher(req.password())
+                .find();
+
+        if (!isMatch) {
+            /* throw new AppError */
+        }
+
+        User user = userOptional.get();
+
+        boolean isPasswordValid = passwordEncoder.matches(req.password(), user.getPasswordHash());
+        if (!isPasswordValid) {
+            /* throw new AppError */
+        }
+
+        return user;
 
     }
 
