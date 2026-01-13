@@ -1,6 +1,7 @@
 package com.orderhub.service;
 
 import java.time.Instant;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
@@ -39,9 +40,9 @@ public class JwtService {
         return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-    public String generateToken(User user) {
+    public String generateAccessToken(User user) {
         Instant now = Instant.now();
-        long expiresAt = 36000L;
+        long expiresAt = 900L; /* 15m */
 
         String scope = "USER"; 
 
@@ -51,9 +52,21 @@ public class JwtService {
             .expiresAt(now.plusSeconds(expiresAt))
             .subject(user.getId().toString())
             .claim("id", user.getId())
+            .claim("roles", user.getRoles())
             .claim("scope", scope)
             .build();
 
         return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+    }
+
+    public String generateRefreshToken() {
+        UUID uuid = UUID.randomUUID();
+
+        Instant now = Instant.now();
+        long expiresAt = 60 * 60 * 168 * 1000; /* 7d */
+
+        String rawToken = uuid.toString() + "|" + now.plusMillis(expiresAt).toString();
+
+        return rawToken;
     }
 }

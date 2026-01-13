@@ -18,24 +18,32 @@ public class AuthService {
     private final JwtService jwtService;
 
     @Transactional
-    private AuthResponse create(Register req) {
+    public AuthResponse create(Register req) {
 
         User savedUser = userService.create(req);
 
-        String token = jwtService.generateToken(savedUser);
+        String accessToken = jwtService.generateAccessToken(savedUser);
 
-        return AuthResponse.fromEntity(savedUser, token, null);
+        String refreshToken = jwtService.generateRefreshToken();
+
+        /* Salvar refresh token no redis (elasticache aws) */
+
+        return AuthResponse.fromEntity(savedUser, accessToken, refreshToken);
 
     }
 
     @Transactional
-    private AuthResponse login(Login req) {
+    public AuthResponse login(Login req) {
 
         User user = userService.login(req);
 
-        String token = jwtService.generateToken(user);
+        String accessToken = jwtService.generateAccessToken(user);
 
-        return AuthResponse.fromEntity(user, token, null);
+        String refreshToken = jwtService.generateRefreshToken();
+
+        /* Salvar refresh token no redis (elasticache aws) */
+
+        return AuthResponse.fromEntity(user, accessToken, refreshToken);
 
     }
 
