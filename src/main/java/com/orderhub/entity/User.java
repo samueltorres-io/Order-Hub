@@ -1,6 +1,7 @@
 package com.orderhub.entity;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,11 +11,11 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -43,9 +44,8 @@ public class User {
     @Column(length = 255, nullable = false, unique = true)
     private String email;
 
-    @OneToMany
-    @JoinColumn(name = "roles")
-    private List<UserRole> roles;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserRole> roles = new ArrayList<>();
 
     @Column(nullable = false)
     @ColumnDefault("false")
