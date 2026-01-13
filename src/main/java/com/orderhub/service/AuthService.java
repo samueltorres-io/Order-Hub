@@ -15,26 +15,35 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
 
     private final UserService userService;
+    private final JwtService jwtService;
 
     @Transactional
-    private AuthResponse create(Register req) {
+    public AuthResponse create(Register req) {
 
         User savedUser = userService.create(req);
 
-        /* Geração de tokens ... */
+        String accessToken = jwtService.generateAccessToken(savedUser);
 
-        return AuthResponse.fromEntity(savedUser, null, null);
+        String refreshToken = jwtService.generateRefreshToken();
+
+        /* Salvar refresh token no redis (elasticache aws) */
+
+        return AuthResponse.fromEntity(savedUser, accessToken, refreshToken);
 
     }
 
     @Transactional
-    private AuthResponse login(Login req) {
+    public AuthResponse login(Login req) {
 
         User user = userService.login(req);
 
-        /* Geração de tokens */
+        String accessToken = jwtService.generateAccessToken(user);
 
-        return AuthResponse.fromEntity(user, null, null);
+        String refreshToken = jwtService.generateRefreshToken();
+
+        /* Salvar refresh token no redis (elasticache aws) */
+
+        return AuthResponse.fromEntity(user, accessToken, refreshToken);
 
     }
 
