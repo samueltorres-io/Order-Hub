@@ -1,0 +1,34 @@
+# Docker compose para testes locais 
+
+version: '3.8'
+
+services:
+  
+  postgres:
+    image: postgres:16-alpine
+    container_name: orderhub-db
+    environment:
+      POSTGRES_DB: orderhub
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - orderhub-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: orderhub-cache
+    ports:
+      - "6379:6379"
+    networks:
+      - orderhub-network
+
+volumes:
+  postgres_data:
+
+networks:
+  orderhub-network:
+    driver: bridge
