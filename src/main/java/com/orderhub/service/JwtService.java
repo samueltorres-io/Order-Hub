@@ -60,13 +60,6 @@ public class JwtService {
     }
 
     public String generateRefreshToken() {
-        UUID uuid = UUID.randomUUID();
-
-        Instant now = Instant.now();
-        long expiresAt = 60 * 60 * 168 * 1000; /* 7d */
-
-        String rawToken = uuid.toString() + "|" + now.plusMillis(expiresAt).toString();
-
-        return rawToken;
+        return UUID.randomUUID().toString();
     }
 }
