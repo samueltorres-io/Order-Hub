@@ -1,6 +1,7 @@
 package com.orderhub.service;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -44,7 +45,12 @@ public class JwtService {
         Instant now = Instant.now();
         long expiresAt = 900L; /* 15m */
 
-        String scope = "USER"; 
+        String scope = "USER";
+
+        List<String> rolesNames = user.getRoles() == null ? List.of() :
+            user.getRoles().stream()
+                .map(userRole -> userRole.getRole().getName())
+                .toList();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
             .issuer("orderhub-api")
@@ -52,7 +58,7 @@ public class JwtService {
             .expiresAt(now.plusSeconds(expiresAt))
             .subject(user.getId().toString())
             .claim("id", user.getId())
-            .claim("roles", user.getRoles())
+            .claim("roles", rolesNames)
             .claim("scope", scope)
             .build();
 
