@@ -10,6 +10,8 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
+import com.orderhub.entity.User;
+
 @Service
 public class JwtService {
     private final JwtEncoder encoder;
@@ -32,6 +34,24 @@ public class JwtService {
             .expiresAt(now.plusSeconds(expiresAt))
             .subject(authentication.getName())
             .claim("scopes", scope)
+            .build();
+
+        return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+    }
+
+    public String generateToken(User user) {
+        Instant now = Instant.now();
+        long expiresAt = 36000L;
+
+        String scope = "USER"; 
+
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+            .issuer("orderhub-api")
+            .issuedAt(now)
+            .expiresAt(now.plusSeconds(expiresAt))
+            .subject(user.getId().toString())
+            .claim("id", user.getId())
+            .claim("scope", scope)
             .build();
 
         return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

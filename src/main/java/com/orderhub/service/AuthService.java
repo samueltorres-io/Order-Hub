@@ -15,15 +15,16 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
 
     private final UserService userService;
+    private final JwtService jwtService;
 
     @Transactional
     private AuthResponse create(Register req) {
 
         User savedUser = userService.create(req);
 
-        /* Geração de tokens ... */
+        String token = jwtService.generateToken(savedUser);
 
-        return AuthResponse.fromEntity(savedUser, null, null);
+        return AuthResponse.fromEntity(savedUser, token, null);
 
     }
 
@@ -32,9 +33,9 @@ public class AuthService {
 
         User user = userService.login(req);
 
-        /* Geração de tokens */
+        String token = jwtService.generateToken(user);
 
-        return AuthResponse.fromEntity(user, null, null);
+        return AuthResponse.fromEntity(user, token, null);
 
     }
 
