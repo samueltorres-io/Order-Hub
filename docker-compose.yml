@@ -6,7 +6,7 @@ services:
   
   postgres:
     image: postgres:16-alpine
-    container_name: orderhub-db
+    container_name: orderhub-db-psql
     environment:
       POSTGRES_DB: orderhub
       POSTGRES_USER: postgres
