@@ -16,10 +16,11 @@ public enum ErrorCode {
     USR_ALREADY_EXISTS("ERR_USER_ALREADY_EXISTS", "User already exists"),
     USR_NOT_FOUND("ERR_USER_NOT_FOUND", "User not found"),
     UNAUTHORIZED("ERR_UNAUTHORIZED", "Unauthorized access"),
-    INVALID_CREDENTIALS("ERR_INVALID_CREDENTIALS", "Invalid email or password"), // Mensagem genérica é mais segura
-    WEAK_PASSWORD("ERR_WEAK_PASSWORD", "Password does not meet security requirements"), // Novo
+    INVALID_CREDENTIALS("ERR_INVALID_CREDENTIALS", "Invalid email or password"),
+    WEAK_PASSWORD("ERR_WEAK_PASSWORD", "Password does not meet security requirements"),
     INVALID_TOKEN("ERR_INVALID_TOKEN", "Invalid or expired token"),
     TOKEN_EXPIRED("ERR_TOKEN_EXPIRED", "Token expired"),
+    ASSOCIATION_ALREADY_EXISTS("ERR_ASSOCIATION_ALREADY_EXISTS", "Association already exists"),
 
     /* Specific HTTP */
     MALFORMED_JSON("ERR_MALFORMED_JSON", "Malformed JSON request body"),
