@@ -1,6 +1,7 @@
 package com.orderhub.service;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.springframework.http.HttpStatus;
@@ -9,12 +10,9 @@ import org.springframework.stereotype.Service;
 
 import com.orderhub.dto.auth.request.Login;
 import com.orderhub.dto.auth.request.Register;
-import com.orderhub.entity.Role;
 import com.orderhub.entity.User;
-import com.orderhub.entity.UserRole;
 import com.orderhub.exception.AppException;
 import com.orderhub.exception.ErrorCode;
-import com.orderhub.repository.RoleRepository;
 import com.orderhub.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -25,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
     private static final String PASSWORD_PATTERN = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$";
@@ -73,16 +70,16 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(req.password()));
 
         /* ----------- Migrar para outra funcção ----------- */
-        Role defaultRole = roleRepository.findByName("USER")
-            .orElseThrow(() -> new AppException(ErrorCode.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR));
+        // Role defaultRole = roleRepository.findByName("USER")
+        //     .orElseThrow(() -> new AppException(ErrorCode.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR));
 
-        UserRole userRole = new UserRole();
-        userRole.setUser(user);
-        userRole.setRole(defaultRole);
-        userRole.getId().setUserId(user.getId());
-        userRole.getId().setRoleId(defaultRole.getId());
+        // UserRole userRole = new UserRole();
+        // userRole.setUser(user);
+        // userRole.setRole(defaultRole);
+        // userRole.getId().setUserId(user.getId());
+        // userRole.getId().setRoleId(defaultRole.getId());
 
-        user.getRoles().add(userRole);
+        // user.getRoles().add(userRole);
         /* ------------------------------------------------- */
 
         return userRepository.save(user);
@@ -115,6 +112,11 @@ public class UserService {
 
         return user;
 
+    }
+
+    public User findById(UUID userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new AppException(ErrorCode.USR_NOT_FOUND, HttpStatus.NOT_FOUND));
     }
 
 }
