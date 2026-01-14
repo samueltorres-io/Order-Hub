@@ -1,7 +1,5 @@
 package com.orderhub.service;
 
-import java.lang.foreign.Linker.Option;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -51,10 +49,14 @@ public class RoleService {
         userRoleRepository.save(userRole);
     }
 
-    /* Desassociar Permissão (userId, roleName) */
-    public boolean unlinkRole(UUID userId, String roleName) {
-        /* Verifica se a associação realmente existe */
-        /* remove */
+    @Transactional
+    public void unlinkRole(UUID userId, String roleName) {
+        
+        if (!this.verifyRole(userId, roleName)) {
+            throw new AppException(ErrorCode.ASSOCIATION_DOES_NOT_EXISTS, HttpStatus.NOT_FOUND);
+        }
+
+        userRoleRepository.deleteByUserIdAndRoleName(userId, roleName);
     }
 
 }

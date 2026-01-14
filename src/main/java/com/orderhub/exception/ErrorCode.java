@@ -21,6 +21,7 @@ public enum ErrorCode {
     INVALID_TOKEN("ERR_INVALID_TOKEN", "Invalid or expired token"),
     TOKEN_EXPIRED("ERR_TOKEN_EXPIRED", "Token expired"),
     ASSOCIATION_ALREADY_EXISTS("ERR_ASSOCIATION_ALREADY_EXISTS", "Association already exists"),
+    ASSOCIATION_DOES_NOT_EXISTS("ERR_ASSOCIATION_DOES_NOT_EXISTS", "Association does not exists"),
 
     /* Specific HTTP */
     MALFORMED_JSON("ERR_MALFORMED_JSON", "Malformed JSON request body"),
