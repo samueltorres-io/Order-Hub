@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
 
     private final UserService userService;
+    private final RoleService roleService;
     private final JwtService jwtService;
 
     @Transactional
@@ -22,13 +23,17 @@ public class AuthService {
 
         User savedUser = userService.create(req);
 
-        String accessToken = jwtService.generateAccessToken(savedUser);
+        roleService.associateRole(savedUser.getId(), "USER");
 
+        /* Refresh de user com roles, para não quebrar geração de tokens com roles */
+        User savedUserWithRoles = userService.findById(savedUser.getId());
+
+        String accessToken = jwtService.generateAccessToken(savedUserWithRoles);
         String refreshToken = jwtService.generateRefreshToken();
 
         /* Salvar refresh token no redis (elasticache aws) */
 
-        return AuthResponse.fromEntity(savedUser, accessToken, refreshToken);
+        return AuthResponse.fromEntity(savedUserWithRoles, accessToken, refreshToken);
 
     }
 
