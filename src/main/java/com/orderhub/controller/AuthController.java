@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.orderhub.dto.auth.request.Login;
+import com.orderhub.dto.auth.request.RefreshRequest;
 import com.orderhub.dto.auth.request.Register;
 import com.orderhub.dto.auth.response.AuthResponse;
+import com.orderhub.dto.auth.response.TokenResponse;
 import com.orderhub.service.AuthService;
 
 import jakarta.validation.Valid;
@@ -34,6 +36,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody Login req) {
         var response = authService.login(req);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenResponse> refresh(@Valid @RequestBody RefreshRequest req) {
+        TokenResponse response = authService.refresh(req);
         return ResponseEntity.ok(response);
     }
 
