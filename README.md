@@ -106,6 +106,8 @@ Product <-> OrderItem {
 
 * `POST /api/auth/login` (Público) - Login com retorno de Access e Refresh Token.
 
+* `POST /api/auth/refresh` (Público) - Rotação de par de tokens.
+
 ### Permissões
 
 * `POST /api/admin/users/{id}/roles` (Admin) - Atribui nova permissão a um usuário.
