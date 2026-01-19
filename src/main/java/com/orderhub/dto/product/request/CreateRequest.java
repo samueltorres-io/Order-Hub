@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
-public record Create(
+public record CreateRequest(
 
     @NotBlank(message = "Name is mandatory")
     @Size(min = 3, max = 200, message = "Name must be between 3 and 200 characters long")
