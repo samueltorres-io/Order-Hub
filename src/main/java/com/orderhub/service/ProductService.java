@@ -7,6 +7,8 @@ import java.util.UUID;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -111,5 +113,21 @@ public class ProductService {
 
         return new ProductResponse(product.getId(), product.getName(), product.getDescription(), product.getPrice());
     }
+
+    public Page<ProductResponse> getProducts(Pageable pageable) {
+
+        if (pageable == null || !pageable.isPaged()) {
+            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
+        }
+
+        Page<Product> products = productRepository.findAll(pageable);
+
+        return products.map(product -> new ProductResponse(
+            product.getId(),
+            product.getName(),
+            product.getDescription(),
+            product.getPrice()
+        ));
+    }    
 
 }
