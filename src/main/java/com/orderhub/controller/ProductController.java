@@ -8,11 +8,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.orderhub.dto.product.request.CreateRequest;
+import com.orderhub.dto.product.request.UpdateRequest;
 import com.orderhub.dto.product.response.CreatedResponse;
 import com.orderhub.dto.product.response.ProductResponse;
 import com.orderhub.service.ProductService;
@@ -31,6 +33,13 @@ public class ProductController {
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<CreatedResponse> create(@Valid @RequestBody CreateRequest req) {
         var response = productService.create(req);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    public ResponseEntity<CreatedResponse> update(@Valid @PathVariable UpdateRequest req) {
+        var response = productService.update(req);
         return ResponseEntity.ok(response);
     }
 
