@@ -28,6 +28,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final RoleService roleService;
 
     @Transactional
     public CreatedResponse create(CreateRequest req) {
@@ -64,6 +65,14 @@ public class ProductService {
         }
 
         User owner = user.get();
+
+        /**
+         * Validação de segurança para validar se o userrealmente
+         * tem a permissão correta para realizar aquela ação
+        */
+        if (!roleService.verifyRole(owner.getId(), "ADMIN")) {
+            throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        }
 
         /**
          * Valida se já não existe um produto com o mesmo
