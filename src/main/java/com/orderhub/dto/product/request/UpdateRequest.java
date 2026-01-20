@@ -1,6 +1,9 @@
 package com.orderhub.dto.product.request;
 
 import java.math.BigDecimal;
+import java.util.UUID;
+
+import com.orderhub.enums.ProductStatus;
 
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
@@ -10,6 +13,9 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 public record UpdateRequest(
+
+    @NotNull(message = "Product Id is mandatory")
+    UUID id,
 
     @NotBlank(message = "Name is mandatory")
     @Size(min = 3, max = 200, message = "Name must be between 3 and 200 characters long")
@@ -29,6 +35,6 @@ public record UpdateRequest(
     Integer stock,
 
     @NotBlank(message = "Status is mandatory")
-    String status
+    ProductStatus status
 
 ) {}
