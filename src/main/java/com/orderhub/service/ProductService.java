@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.orderhub.dto.product.request.CreateRequest;
 import com.orderhub.dto.product.response.CreatedResponse;
+import com.orderhub.dto.product.response.ProductResponse;
 import com.orderhub.entity.Product;
 import com.orderhub.entity.User;
 import com.orderhub.exception.AppException;
@@ -91,7 +92,24 @@ public class ProductService {
         product.setOwner(owner);
 
         Product saved = productRepository.save(product);
-        return new CreatedResponse(saved.getId(), saved.getName(), true);
+        return new CreatedResponse(saved.getId(), saved.getName(), saved.getDescription(), saved.getPrice(), true);
+    }
+
+    @Transactional
+    public ProductResponse getByName(String name) {
+
+        if (name == null || name.isBlank()) {
+            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
+        }
+
+        Optional<Product> productExist = productRepository.findByName(name);
+        if (productExist.isEmpty()) {
+            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+
+        Product product = productExist.get();
+
+        return new ProductResponse(product.getId(), product.getName(), product.getDescription(), product.getPrice());
     }
 
 }
