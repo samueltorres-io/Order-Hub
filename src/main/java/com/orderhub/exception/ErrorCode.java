@@ -11,6 +11,7 @@ public enum ErrorCode {
     NOT_FOUND("ERR_NOT_FOUND", "Resource not found"),
     GONE("ERR_GONE", "Resource no longer available"),
     BAD_REQUEST("ERR_BAD_REQUEST", "Bad request"),
+    DUPLICATED_RESOURCE("ERR_DUPLICATED_RESOURCE", "Duplicate Resource"),
 
     /* User & Auth */
     USR_ALREADY_EXISTS("ERR_USER_ALREADY_EXISTS", "User already exists"),
@@ -31,7 +32,10 @@ public enum ErrorCode {
 
     /* Rate Limiting & Security */
     TOO_MANY_REQUESTS("ERR_TOO_MANY_REQUESTS", "Too many requests"),
-    FORBIDDEN("ERR_FORBIDDEN", "Access forbidden");
+    FORBIDDEN("ERR_FORBIDDEN", "Access forbidden"),
+
+    /* Product */
+    PRODUCT_NOT_FOUND("ERR_PRODUCT_NOT_FOUND", "Product not found");
 
     private final String code;
     private final String defaultMessage;

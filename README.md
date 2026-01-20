@@ -117,11 +117,13 @@ Product <-> OrderItem {
 
 ### Produtos
 
-* `GET /api/products` (Público) - Lista todos os produtos com paginação.
+* `GET /api/products/{page}&{size}` (Público) - Lista todos os produtos com paginação.
 
-* `GET /api/products/{name}` (público) - usca detalhes de um produto pelo nome.
+* `GET /api/products/{name}` (público) - Busca detalhes de um produto pelo nome.
 
 * `POST /api/products` (Admin) - Cadastra um novo produto no catálogo.
+
+* `PUT /api/products/{id}` (Admin) - Atualiza um produto já existente pelo id e dados no body.
 
 ### Pedidos
 
