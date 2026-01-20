@@ -117,7 +117,7 @@ Product <-> OrderItem {
 
 ### Produtos
 
-* `GET /api/products` (Público) - Lista todos os produtos com paginação.
+* `GET /api/products/{page}&{size}` (Público) - Lista todos os produtos com paginação.
 
 * `GET /api/products/{name}` (público) - Busca detalhes de um produto pelo nome.
 
