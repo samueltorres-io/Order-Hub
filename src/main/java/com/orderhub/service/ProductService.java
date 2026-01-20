@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.orderhub.dto.product.request.CreateRequest;
+import com.orderhub.dto.product.request.UpdateRequest;
 import com.orderhub.dto.product.response.CreatedResponse;
 import com.orderhub.dto.product.response.ProductResponse;
 import com.orderhub.entity.Product;
@@ -98,6 +99,72 @@ public class ProductService {
     }
 
     @Transactional
+    public CreatedResponse update(UpdateRequest req) {
+
+        /* * `PUT /api/products/{id}` (Admin) - Atualiza um produto já existente pelo id e dados no body. */
+
+        /* Validar os dados da requisição */
+
+        if (req.name() == null || req.name().isBlank()) {
+            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
+        }
+
+        if (req.description() == null || req.description().isBlank()) {
+            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
+        }
+
+        if (req.price() == null || req.price().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
+        }
+
+        if (req.stock() == null || req.stock() <= 0) {
+            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
+        }
+
+        /* Validar se o user existe */
+        /* Validar se o user tem permissão de admin */
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        }
+
+        Jwt jwt = (Jwt) auth.getPrincipal();
+
+        String userIdStr = jwt.getSubject();
+        UUID userId = UUID.fromString(userIdStr);
+
+        if (!userRepository.existsById(userId)) {
+            throw new AppException(ErrorCode.USR_NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+
+        if (!roleService.verifyRole(userId, "ADMIN")) {
+            throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        }
+
+        /* Validar se o produto existe e verificar se o user é o dono do produto (owner_id)*/
+
+        Optional<Product> productExist = productRepository.findByName(req.name());
+        if (productExist != null || productExist.isEmpty()) {
+            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+
+        Product product = productExist.get();
+
+        if (product.getOwner().getId() != userId) {
+            throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        }
+
+        /* Atualizar os dados */
+
+        
+
+        /* return new ProductResponse(product.getId(), product.getName(), product.getDescription(), product.getPrice()); */
+
+        return null;
+    }
+
+    @Transactional
     public ProductResponse getByName(String name) {
 
         if (name == null || name.isBlank()) {
@@ -128,6 +195,5 @@ public class ProductService {
             product.getDescription(),
             product.getPrice()
         ));
-    }    
-
+    }
 }
