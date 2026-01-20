@@ -32,7 +32,10 @@ public enum ErrorCode {
 
     /* Rate Limiting & Security */
     TOO_MANY_REQUESTS("ERR_TOO_MANY_REQUESTS", "Too many requests"),
-    FORBIDDEN("ERR_FORBIDDEN", "Access forbidden");
+    FORBIDDEN("ERR_FORBIDDEN", "Access forbidden"),
+
+    /* Product */
+    PRODUCT_NOT_FOUND("ERR_PRODUCT_NOT_FOUND", "Product not found");
 
     private final String code;
     private final String defaultMessage;
