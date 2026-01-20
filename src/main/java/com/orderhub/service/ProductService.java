@@ -95,34 +95,11 @@ public class ProductService {
         product.setOwner(owner);
 
         Product saved = productRepository.save(product);
-        return new CreatedResponse(saved.getId(), saved.getName(), saved.getDescription(), saved.getPrice(), true);
+        return new CreatedResponse(saved.getId(), saved.getName(), saved.getDescription(), saved.getPrice(), product.getStatus());
     }
 
     @Transactional
     public CreatedResponse update(UpdateRequest req) {
-
-        /* * `PUT /api/products/{id}` (Admin) - Atualiza um produto já existente pelo id e dados no body. */
-
-        /* Validar os dados da requisição */
-
-        if (req.name() == null || req.name().isBlank()) {
-            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
-        }
-
-        if (req.description() == null || req.description().isBlank()) {
-            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
-        }
-
-        if (req.price() == null || req.price().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
-        }
-
-        if (req.stock() == null || req.stock() <= 0) {
-            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
-        }
-
-        /* Validar se o user existe */
-        /* Validar se o user tem permissão de admin */
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
@@ -130,9 +107,7 @@ public class ProductService {
         }
 
         Jwt jwt = (Jwt) auth.getPrincipal();
-
-        String userIdStr = jwt.getSubject();
-        UUID userId = UUID.fromString(userIdStr);
+        UUID userId = UUID.fromString(jwt.getSubject());
 
         if (!userRepository.existsById(userId)) {
             throw new AppException(ErrorCode.USR_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -142,26 +117,30 @@ public class ProductService {
             throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         }
 
-        /* Validar se o produto existe e verificar se o user é o dono do produto (owner_id)*/
+        Product product = productRepository.findById(req.id())
+            .orElseThrow(() -> new AppException(
+                ErrorCode.PRODUCT_NOT_FOUND,
+                HttpStatus.NOT_FOUND
+            ));
 
-        Optional<Product> productExist = productRepository.findByName(req.name());
-        if (productExist != null || productExist.isEmpty()) {
-            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND);
-        }
-
-        Product product = productExist.get();
-
-        if (product.getOwner().getId() != userId) {
+        if (!product.getOwner().getId().equals(userId)) {
             throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         }
 
-        /* Atualizar os dados */
+        product.setName(req.name());
+        product.setDescription(req.description());
+        product.setPrice(req.price());
+        product.setStatus(req.status());
 
-        
+        Product updatedProduct = productRepository.save(product);
 
-        /* return new ProductResponse(product.getId(), product.getName(), product.getDescription(), product.getPrice()); */
-
-        return null;
+        return new CreatedResponse(
+            updatedProduct.getId(), 
+            updatedProduct.getName(), 
+            updatedProduct.getDescription(), 
+            updatedProduct.getPrice(), 
+            updatedProduct.getStatus()
+        );
     }
 
     @Transactional
