@@ -89,10 +89,8 @@ public class UserService {
         }
 
         User user = userOptional.get();
-
-        boolean isPasswordValid = passwordEncoder.matches(req.password(), user.getPasswordHash());
         
-        if (!isPasswordValid) {
+        if (!passwordEncoder.matches(req.password(), user.getPasswordHash())) {
             throw new AppException(ErrorCode.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
         }
 
