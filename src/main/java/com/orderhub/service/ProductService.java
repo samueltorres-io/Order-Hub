@@ -59,30 +59,15 @@ public class ProductService {
         }
 
         Jwt jwt = (Jwt) auth.getPrincipal();
+        UUID ownerId = UUID.fromString(jwt.getSubject());
 
-        String ownerIdStr = jwt.getSubject();
-        UUID ownerId = UUID.fromString(ownerIdStr);
+        User user = userRepository.findById(ownerId)
+            .orElseThrow(() -> new AppException(ErrorCode.USR_NOT_FOUND, HttpStatus.NOT_FOUND));
 
-        Optional<User> user = userRepository.findById(ownerId);
-        if (user.isEmpty()) {
-            throw new AppException(ErrorCode.USR_NOT_FOUND, HttpStatus.NOT_FOUND);
-        }
-
-        User owner = user.get();
-
-        /**
-         * Validação de segurança para validar se o userrealmente
-         * tem a permissão correta para realizar aquela ação
-        */
-        if (!roleService.verifyRole(owner.getId(), "ADMIN")) {
+        if (!roleService.verifyRole(user.getId(), "ADMIN")) {
             throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         }
 
-        /**
-         * Valida se já não existe um produto com o mesmo
-         * nome e que esteja atrelado ao usuário que está
-         * realizando a request
-        */
         if (productRepository.existsByNameAndOwnerId(req.name(), ownerId)) {
             throw new AppException(ErrorCode.DUPLICATED_RESOURCE, HttpStatus.CONFLICT);
         }
@@ -92,7 +77,7 @@ public class ProductService {
         product.setDescription(req.description());
         product.setPrice(req.price());
         product.setStock(req.stock());
-        product.setOwner(owner);
+        product.setOwner(user);
 
         Product saved = productRepository.save(product);
         return new CreatedResponse(saved.getId(), saved.getName(), saved.getDescription(), saved.getPrice(), product.getStatus());
