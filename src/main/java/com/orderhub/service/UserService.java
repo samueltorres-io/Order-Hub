@@ -69,21 +69,7 @@ public class UserService {
         user.setEmail(req.email());
         user.setPasswordHash(passwordEncoder.encode(req.password()));
 
-        /* ----------- Migrar para outra funcção ----------- */
-        // Role defaultRole = roleRepository.findByName("USER")
-        //     .orElseThrow(() -> new AppException(ErrorCode.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR));
-
-        // UserRole userRole = new UserRole();
-        // userRole.setUser(user);
-        // userRole.setRole(defaultRole);
-        // userRole.getId().setUserId(user.getId());
-        // userRole.getId().setRoleId(defaultRole.getId());
-
-        // user.getRoles().add(userRole);
-        /* ------------------------------------------------- */
-
         return userRepository.save(user);
-
     }
 
     @Transactional
