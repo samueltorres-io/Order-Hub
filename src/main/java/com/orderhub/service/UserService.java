@@ -69,21 +69,7 @@ public class UserService {
         user.setEmail(req.email());
         user.setPasswordHash(passwordEncoder.encode(req.password()));
 
-        /* ----------- Migrar para outra funcção ----------- */
-        // Role defaultRole = roleRepository.findByName("USER")
-        //     .orElseThrow(() -> new AppException(ErrorCode.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR));
-
-        // UserRole userRole = new UserRole();
-        // userRole.setUser(user);
-        // userRole.setRole(defaultRole);
-        // userRole.getId().setUserId(user.getId());
-        // userRole.getId().setRoleId(defaultRole.getId());
-
-        // user.getRoles().add(userRole);
-        /* ------------------------------------------------- */
-
         return userRepository.save(user);
-
     }
 
     @Transactional
@@ -97,16 +83,11 @@ public class UserService {
             throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
         }
 
-        Optional<User> userOptional = userRepository.findByEmail(req.email());
-        if (userOptional.isEmpty()) {
-            throw new AppException(ErrorCode.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
-        }
+        User user = userRepository.findByEmail(req.email())
+            .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED));
 
-        User user = userOptional.get();
-
-        boolean isPasswordValid = passwordEncoder.matches(req.password(), user.getPasswordHash());
         
-        if (!isPasswordValid) {
+        if (!passwordEncoder.matches(req.password(), user.getPasswordHash())) {
             throw new AppException(ErrorCode.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
         }
 
