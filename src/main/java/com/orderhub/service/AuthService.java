@@ -33,7 +33,6 @@ public class AuthService {
 
         roleService.associateRole(savedUser.getId(), "USER");
 
-        /* Refresh de user com roles, para não quebrar geração de tokens com roles */
         User user = userService.findById(savedUser.getId());
 
         String accessToken = jwtService.generateAccessToken(user);
@@ -51,7 +50,6 @@ public class AuthService {
         User user = userService.login(req);
 
         String accessToken = jwtService.generateAccessToken(user);
-
         String refreshToken = jwtService.generateRefreshToken();
 
         redisService.save(refreshToken, user.getId().toString());
