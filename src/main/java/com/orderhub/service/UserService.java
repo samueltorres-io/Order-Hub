@@ -83,12 +83,9 @@ public class UserService {
             throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
         }
 
-        Optional<User> userOptional = userRepository.findByEmail(req.email());
-        if (userOptional.isEmpty()) {
-            throw new AppException(ErrorCode.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
-        }
+        User user = userRepository.findByEmail(req.email())
+            .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED));
 
-        User user = userOptional.get();
         
         if (!passwordEncoder.matches(req.password(), user.getPasswordHash())) {
             throw new AppException(ErrorCode.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
