@@ -1,16 +1,30 @@
 package com.orderhub.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.orderhub.dto.order.request.CreateOrderRequest;
+import com.orderhub.dto.order.request.CreateOrderRequest.OrderItemRequest;
+import com.orderhub.entity.Order;
+import com.orderhub.entity.OrderItem;
+import com.orderhub.entity.Product;
 import com.orderhub.entity.User;
+import com.orderhub.enums.OrderStatus;
 import com.orderhub.exception.AppException;
 import com.orderhub.exception.ErrorCode;
+import com.orderhub.repository.ProductRepository;
 import com.orderhub.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -22,10 +36,10 @@ import org.springframework.security.oauth2.jwt.Jwt;
 public class OrderService {
 
     private final UserRepository userRepository;
+    private final ProductRepository productRepository;
 
+    @Transactional
     public void create(CreateOrderRequest req) {
-
-        /* Vaildar se o usuário existe */
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
@@ -38,13 +52,23 @@ public class OrderService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new AppException(ErrorCode.USR_NOT_FOUND, HttpStatus.NOT_FOUND));
 
-        /* Validar se os produtos existem */
+        List<UUID> productIds = req.items().stream().map(OrderItemRequest::productId).toList();
+        List<Product> products = productRepository.findAllById(productIds);
 
-        /* Montar o objeto Order */
+        if (products.size() != productIds.size()) {
+            throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR, HttpStatus.BAD_REQUEST); 
+        }
 
-        /* Montar o objeto Outbox com o JSON do pedido */
+        Map<UUID, Product> productMap = products.stream()
+            .collect(Collectors.toMap(Product::getId, Function.identity()));
 
-        /* Salvar os dois */
+        Order order = new Order();
+        order.setUser(user);
+        order.setStatus(OrderStatus.pending);
+        order.setCreatedAt(Instant.now());
+
+        List<OrderItem> orderItems = new ArrayList<>();
+        BigDecimal totalOrderValue = BigDecimal.ZERO;
 
     }
 
