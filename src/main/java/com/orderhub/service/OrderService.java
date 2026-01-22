@@ -70,6 +70,25 @@ public class OrderService {
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal totalOrderValue = BigDecimal.ZERO;
 
+        for (OrderItemRequest itemReq : req.items()) {
+            Product product = productMap.get(itemReq.productId());
+
+            BigDecimal unitPrice = product.getPrice();
+            BigDecimal itemTotal = unitPrice.multiply(BigDecimal.valueOf(itemReq.quantity()));
+
+            totalOrderValue = totalOrderValue.add(itemTotal);
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProduct(product);
+            orderItem.setQuantity(itemReq.quantity());
+            orderItem.setUnitPrice(unitPrice);
+
+            orderItem.setOrder(order);
+            orderItems.add(orderItem);
+        }
+
+        
+
     }
 
 }
