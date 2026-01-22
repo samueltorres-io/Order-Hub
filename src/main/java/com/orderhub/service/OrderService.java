@@ -2,10 +2,12 @@ package com.orderhub.service;
 
 import org.springframework.stereotype.Service;
 
+import com.orderhub.dto.order.request.CreateOrderRequest;
+
 @Service
 public class OrderService {
 
-    public void create() {
+    public void create(CreateOrderRequest req) {
 
         /* Validar se os produtos existem */
 
