@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orderhub.dto.order.request.CreateOrderRequest;
 import com.orderhub.dto.order.request.CreateOrderRequest.OrderItemRequest;
+import com.orderhub.dto.order.response.OrderResponse;
 import com.orderhub.entity.Order;
 import com.orderhub.entity.OrderItem;
 import com.orderhub.entity.Outbox;
@@ -46,7 +47,7 @@ public class OrderService {
     private final ObjectMapper objectMapper;
 
     @Transactional
-    public void create(CreateOrderRequest req) {
+    public OrderResponse create(CreateOrderRequest req) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
@@ -122,5 +123,23 @@ public class OrderService {
             e.printStackTrace(); 
             throw new RuntimeException("Error processing outbox event", e);
         }
+
+        List<OrderResponse.OrderItemResponse> itemResponse = savedOrder.getItems().stream()
+            .map(item -> new OrderResponse.OrderItemResponse(
+                item.getProduct().getId(),
+                item.getProduct().getName(),
+                item.getQuantity(),
+                item.getUnitPrice(),
+                item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()))
+            ))
+            .toList();
+
+        return new OrderResponse(
+            savedOrder.getId(),
+            savedOrder.getTotal(),
+            savedOrder.getStatus(),
+            savedOrder.getCreatedAt(),
+            itemResponse
+        );
     }
 }
