@@ -1,22 +1,5 @@
 package com.orderhub.service;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.orderhub.dto.order.request.CreateOrderRequest;
-import com.orderhub.dto.order.request.CreateOrderRequest.OrderItemRequest;
-import com.orderhub.entity.Order;
-import com.orderhub.entity.OrderItem;
-import com.orderhub.entity.Product;
-import com.orderhub.entity.User;
-import com.orderhub.enums.OrderStatus;
-import com.orderhub.exception.AppException;
-import com.orderhub.exception.ErrorCode;
-import com.orderhub.repository.ProductRepository;
-import com.orderhub.repository.UserRepository;
-
-import lombok.RequiredArgsConstructor;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -30,6 +13,27 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.orderhub.dto.order.request.CreateOrderRequest;
+import com.orderhub.dto.order.request.CreateOrderRequest.OrderItemRequest;
+import com.orderhub.entity.Order;
+import com.orderhub.entity.OrderItem;
+import com.orderhub.entity.Outbox;
+import com.orderhub.entity.Product;
+import com.orderhub.entity.User;
+import com.orderhub.enums.OrderStatus;
+import com.orderhub.enums.OutboxStatus;
+import com.orderhub.exception.AppException;
+import com.orderhub.exception.ErrorCode;
+import com.orderhub.repository.OrderRepository;
+import com.orderhub.repository.OutboxRepository;
+import com.orderhub.repository.ProductRepository;
+import com.orderhub.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +41,9 @@ public class OrderService {
 
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
+    private final OutboxRepository outboxRepository;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public void create(CreateOrderRequest req) {
@@ -87,8 +94,33 @@ public class OrderService {
             orderItems.add(orderItem);
         }
 
-        
+        if (totalOrderValue.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR, HttpStatus.BAD_REQUEST);
+        }
 
+        order.setTotal(totalOrderValue);
+
+        order.setItems(orderItems); 
+
+        Order savedOrder = orderRepository.save(order);
+
+        try {
+            String orderJson = objectMapper.writeValueAsString(savedOrder);
+
+            Outbox outbox = Outbox.builder()
+                .topic("orders-events")
+                .aggregateId(savedOrder.getId().toString())
+                .eventType("ORDER_CREATED")
+                .payload(orderJson)
+                .status(OutboxStatus.PENDING)
+                .createdAt(Instant.now())
+                .build();
+
+            outboxRepository.save(outbox);
+
+        } catch (Exception e) {
+            e.printStackTrace(); 
+            throw new RuntimeException("Error processing outbox event", e);
+        }
     }
-
 }
