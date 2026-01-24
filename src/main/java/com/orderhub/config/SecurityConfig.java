@@ -28,12 +28,19 @@ public class SecurityConfig {
 
     private final RsaKeyProperties rsaKeys;
 
+    private static final String[] SWAGGER_WHITELIST = {
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> {
+                authorize.requestMatchers(SWAGGER_WHITELIST).permitAll();
                 authorize.requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll();
                 authorize.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll();
                 authorize.requestMatchers(HttpMethod.GET, "/api/products/**").permitAll();
