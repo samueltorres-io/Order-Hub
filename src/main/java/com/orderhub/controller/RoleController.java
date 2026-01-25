@@ -22,7 +22,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
 
@@ -105,6 +104,39 @@ public class RoleController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(summary = "Remove Role from User", description = "Revoke a specific role from a user. Requires ADMIN privileges.")
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "204", 
+            description = "Role removed successfully"
+        ),
+        @ApiResponse(
+            responseCode = "403", 
+            description = "Insufficient privileges",
+            content = @Content(
+                mediaType = "application/json", 
+                schema = @Schema(implementation = ApiError.class),
+                examples = @ExampleObject(
+                    name = "Forbidden",
+                    summary = "User is not an Admin",
+                    value = "{\"success\":false,\"errorCode\":\"ERR_UNAUTHORIZED\",\"status\":403,\"message\":\"Access denied\",\"timestamp\":\"2024-01-24T10:00:00Z\",\"traceId\":\"sec-002\",\"details\":null}"
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "404", 
+            description = "Association not found",
+            content = @Content(
+                mediaType = "application/json", 
+                schema = @Schema(implementation = ApiError.class),
+                examples = @ExampleObject(
+                    name = "Association Does Not Exist",
+                    summary = "The user does not have this role linked",
+                    value = "{\"success\":false,\"errorCode\":\"ERR_ASSOCIATION_DOES_NOT_EXISTS\",\"status\":404,\"message\":\"Association does not exist\",\"timestamp\":\"2024-01-24T10:00:00Z\",\"traceId\":\"lnk-404\",\"details\":null}"
+                )
+            )
+        )
+    })
     @DeleteMapping("/{id}/roles/{roleName}")
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<Void> unlink(
