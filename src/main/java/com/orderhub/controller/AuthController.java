@@ -22,8 +22,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import lombok.RequiredArgsConstructor; 
 
 @RestController
 @RequiredArgsConstructor
@@ -55,14 +56,35 @@ public class AuthController {
             )
         ),
         @ApiResponse(
-            responseCode = "409", 
-            description = "User already exists",
+            responseCode = "404", 
+            description = "User not found during permission assignment",
             content = @Content(
                 mediaType = "application/json", 
                 schema = @Schema(implementation = ApiError.class),
                 examples = @ExampleObject(
-                    value = "{\"success\":false,\"errorCode\":\"ERR_USER_ALREADY_EXISTS\",\"status\":409,\"message\":\"User already exists\",\"timestamp\":\"2024-01-24T10:00:00Z\",\"traceId\":\"xyz-789\",\"details\":null}"
+                    name = "User Not Found",
+                    value = "{\"success\":false,\"errorCode\":\"ERR_USER_NOT_FOUND\",\"status\":404,\"message\":\"User not found\",\"timestamp\":\"2024-01-24T10:00:00Z\",\"traceId\":\"xyz-000\",\"details\":null}"
                 )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "409", 
+            description = "Conflict scenarios",
+            content = @Content(
+                mediaType = "application/json", 
+                schema = @Schema(implementation = ApiError.class),
+                examples = {
+                    @ExampleObject(
+                        name = "User Already Exists",
+                        summary = "Error when email is already taken",
+                        value = "{\"success\":false,\"errorCode\":\"ERR_USER_ALREADY_EXISTS\",\"status\":409,\"message\":\"User already exists\",\"timestamp\":\"2024-01-24T10:00:00Z\",\"traceId\":\"xyz-789\",\"details\":null}"
+                    ),
+                    @ExampleObject(
+                        name = "Association Already Exists",
+                        summary = "Error when user already has the permission",
+                        value = "{\"success\":false,\"errorCode\":\"ERR_ASSOCIATION_ALREADY_EXISTS\",\"status\":409,\"message\":\"Association already exists\",\"timestamp\":\"2024-01-24T10:00:00Z\",\"traceId\":\"xyz-999\",\"details\":null}"
+                    )
+                }
             )
         )
     })
