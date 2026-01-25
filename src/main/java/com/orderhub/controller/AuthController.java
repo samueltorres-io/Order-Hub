@@ -138,6 +138,43 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Refresh Access Token", description = "Generates a new access token using a valid refresh token")
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", 
+            description = "Token refreshed successfully",
+            content = @Content(
+                mediaType = "application/json", 
+                schema = @Schema(implementation = TokenResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400", 
+            description = "Invalid Refresh Token",
+            content = @Content(
+                mediaType = "application/json", 
+                schema = @Schema(implementation = ApiError.class),
+                examples = @ExampleObject(
+                    name = "Invalid Token",
+                    summary = "Token is expired or invalid",
+                    value = "{\"success\":false,\"errorCode\":\"ERR_INVALID_TOKEN\",\"status\":400,\"message\":\"Invalid refresh token\",\"timestamp\":\"2024-01-24T10:00:00Z\",\"traceId\":\"abc-999\",\"details\":null}"
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "404", 
+            description = "User linked to token not found",
+            content = @Content(
+                mediaType = "application/json", 
+                schema = @Schema(implementation = ApiError.class),
+                examples = @ExampleObject(
+                    name = "User Not Found",
+                    summary = "User ID in token does not exist",
+                    value = "{\"success\":false,\"errorCode\":\"ERR_USER_NOT_FOUND\",\"status\":404,\"message\":\"User not found\",\"timestamp\":\"2024-01-24T10:00:00Z\",\"traceId\":\"xyz-888\",\"details\":null}"
+                )
+            )
+        )
+    })
     @PostMapping("/refresh")
     public ResponseEntity<TokenResponse> refresh(@Valid @RequestBody RefreshRequest req) {
         TokenResponse response = authService.refresh(req);
