@@ -77,6 +77,39 @@ public class AuthController {
         return ResponseEntity.created(uri).body(response);
     }
 
+    @Operation(summary = "Login a exist user", description = "Login a user to the system and returns the authentication token")
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "User logged successfully",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = AuthResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid request data",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ApiError.class),
+                examples = @ExampleObject(
+                    value = "{\"success\":false,\"errorCode\":\"ERR_INVALID_INPUT\",\"status\":400,\"message\":\"Invalid request data\",\"timestamp\":\"2024-01-24T10:00:00Z\",\"traceId\":\"abc-123\",\"details\":[\"email: must be a well-formed email address\"]}"
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "Unauthorized access",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ApiError.class),
+                examples = @ExampleObject(
+                    value = "{\"success\":false,\"errorCode\":\"ERR_UNAUTHORIZED\",\"status\":401,\"message\":\"Unauthorized access\",\"timestamp\":\"2024-01-24T10:00:00Z\",\"traceId\":\"abc-123\",\"details\":[\"Unauthorized access\"]}"
+                )
+            )
+        )
+    })
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody Login req) {
         var response = authService.login(req);
