@@ -106,6 +106,49 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Update existing resource", description = "Updates a resource by ID. Requires ADMIN privileges.")
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", 
+            description = "Resource updated successfully",
+            content = @Content(
+                mediaType = "application/json", 
+                schema = @Schema(implementation = CreatedResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "401", 
+            description = "Unauthorized",
+            content = @Content(
+                mediaType = "application/json", 
+                schema = @Schema(implementation = ApiError.class),
+                examples = @ExampleObject(
+                    name = "Unauthorized",
+                    value = "{\"success\":false,\"errorCode\":\"ERR_UNAUTHORIZED\",\"status\":401,\"message\":\"Authentication failed\",\"timestamp\":\"2024-01-24T10:00:00Z\",\"traceId\":\"sec-401\",\"details\":null}"
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "404", 
+            description = "Resource not found",
+            content = @Content(
+                mediaType = "application/json", 
+                schema = @Schema(implementation = ApiError.class),
+                examples = {
+                    @ExampleObject(
+                        name = "Product Not Found",
+                        summary = "Target product ID does not exist",
+                        value = "{\"success\":false,\"errorCode\":\"ERR_PRODUCT_NOT_FOUND\",\"status\":404,\"message\":\"Product not found\",\"timestamp\":\"2024-01-24T10:00:00Z\",\"traceId\":\"prd-404\",\"details\":null}"
+                    ),
+                    @ExampleObject(
+                        name = "User Not Found",
+                        summary = "Related user context not found",
+                        value = "{\"success\":false,\"errorCode\":\"ERR_USER_NOT_FOUND\",\"status\":404,\"message\":\"User not found\",\"timestamp\":\"2024-01-24T10:00:00Z\",\"traceId\":\"usr-404\",\"details\":null}"
+                    )
+                }
+            )
+        )
+    })
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<CreatedResponse> update(@Valid @PathVariable UpdateRequest req) {
