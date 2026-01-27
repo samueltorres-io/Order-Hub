@@ -156,12 +156,58 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Get product by name", description = "Retrieves a specific product details using its exact name")
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", 
+            description = "Product found",
+            content = @Content(
+                mediaType = "application/json", 
+                schema = @Schema(implementation = ProductResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400", 
+            description = "Invalid name format",
+            content = @Content(
+                mediaType = "application/json", 
+                schema = @Schema(implementation = ApiError.class),
+                examples = @ExampleObject(
+                    name = "Invalid Input",
+                    value = "{\"success\":false,\"errorCode\":\"ERR_INVALID_INPUT\",\"status\":400,\"message\":\"Invalid input provided\",\"timestamp\":\"2024-01-24T10:00:00Z\",\"traceId\":\"req-002\",\"details\":[\"name: invalid format\"]}"
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "404", 
+            description = "Product not found",
+            content = @Content(
+                mediaType = "application/json", 
+                schema = @Schema(implementation = ApiError.class),
+                examples = @ExampleObject(
+                    name = "Product Not Found",
+                    value = "{\"success\":false,\"errorCode\":\"ERR_PRODUCT_NOT_FOUND\",\"status\":404,\"message\":\"Product not found\",\"timestamp\":\"2024-01-24T10:00:00Z\",\"traceId\":\"prd-404\",\"details\":null}"
+                )
+            )
+        )
+    })
     @GetMapping("/{name}")
     public ResponseEntity<ProductResponse> getByName(@PathVariable String name) {
         var response = productService.getByName(name);
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+        summary = "Get all products (Paginated)", 
+        description = "Retrieves a paginated list of all available products. Accepts query params: page, size, sort. Returns empty page if no results found."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", 
+            description = "Page retrieved successfully",
+            useReturnTypeSchema = true
+        )
+    })
     @GetMapping
     public ResponseEntity<Page<ProductResponse>> getProducts(
         @PageableDefault(page = 0, size = 20) Pageable pageable
@@ -169,5 +215,4 @@ public class ProductController {
         var response = productService.getProducts(pageable);
         return ResponseEntity.ok(response);
     }
-
 }
