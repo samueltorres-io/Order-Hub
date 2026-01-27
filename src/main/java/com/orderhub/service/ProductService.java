@@ -1,6 +1,5 @@
 package com.orderhub.service;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,22 +35,6 @@ public class ProductService {
 
     @Transactional
     public CreatedResponse create(CreateRequest req) {
-
-        if (req.name() == null || req.name().isBlank()) {
-            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
-        }
-
-        if (req.description() == null || req.description().isBlank()) {
-            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
-        }
-
-        if (req.price() == null || req.price().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
-        }
-
-        if (req.stock() == null || req.stock() <= 0) {
-            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
-        }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
@@ -146,10 +129,6 @@ public class ProductService {
     }
 
     public Page<ProductResponse> getProducts(Pageable pageable) {
-
-        if (pageable == null || !pageable.isPaged()) {
-            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
-        }
 
         Page<Product> products = productRepository.findAll(pageable);
 
