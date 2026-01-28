@@ -35,7 +35,10 @@ public enum ErrorCode {
     FORBIDDEN("ERR_FORBIDDEN", "Access forbidden"),
 
     /* Product */
-    PRODUCT_NOT_FOUND("ERR_PRODUCT_NOT_FOUND", "Product not found");
+    PRODUCT_NOT_FOUND("ERR_PRODUCT_NOT_FOUND", "Product not found"),
+
+    /* Order */
+    ORDER_NOT_FOUND("ERR_ORDER_NOT_FOUND", "Order not found");
 
     private final String code;
     private final String defaultMessage;
