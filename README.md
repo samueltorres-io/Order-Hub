@@ -131,4 +131,4 @@ Product <-> OrderItem {
 
 * `GET /api/orders/{id}` (User Auth & Admin) - Consulta o status e detalhes de um pedido específico.
 
-* `GET /api/admin/orders` (Admin) - Lista todos os pedidos realizados na plataforma.
+* `GET /api/admin/orders` (Admin) - Lista todos os pedidos realizados na plataforma, com paginação.

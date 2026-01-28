@@ -142,4 +142,18 @@ public class OrderService {
             itemResponse
         );
     }
+
+    public OrderResponse getOrderById(UUID id) {
+
+        Order order = orderRepository.findById(id)
+            .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND));
+
+        return new OrderResponse(
+            order.getId(),
+            order.getTotal(),
+            order.getStatus(),
+            order.getCreatedAt(),
+            order.getItems()
+        );
+    }
 }
