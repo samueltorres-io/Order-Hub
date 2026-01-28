@@ -146,14 +146,23 @@ public class OrderService {
     public OrderResponse getOrderById(UUID id) {
 
         Order order = orderRepository.findById(id)
-            .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND));
+            .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND));
+
+        List<OrderResponse.OrderItemResponse> items = order.getItems().stream().map(item -> new OrderResponse.OrderItemResponse(
+            item.getProduct().getId(),
+            item.getProduct().getName(),
+            item.getQuantity(),
+            item.getUnitPrice(),
+            item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()))
+        ))
+        .toList();
 
         return new OrderResponse(
             order.getId(),
             order.getTotal(),
             order.getStatus(),
             order.getCreatedAt(),
-            order.getItems()
+            items
         );
     }
 }
