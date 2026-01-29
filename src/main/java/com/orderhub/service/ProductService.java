@@ -1,11 +1,6 @@
 package com.orderhub.service;
 
 import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -20,7 +15,6 @@ import com.orderhub.entity.User;
 import com.orderhub.exception.AppException;
 import com.orderhub.exception.ErrorCode;
 import com.orderhub.repository.ProductRepository;
-import com.orderhub.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final UserRepository userRepository;
     private final RoleService roleService;
 
     @Transactional
@@ -90,10 +83,6 @@ public class ProductService {
 
     @Transactional
     public ProductResponse getByName(String name) {
-
-        if (name == null || name.isBlank()) {
-            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
-        }
 
         Optional<Product> productExist = productRepository.findByName(name);
         if (productExist.isEmpty()) {
