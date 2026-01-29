@@ -144,12 +144,12 @@ public class OrderService {
             .map(this::mapToOrderResponse);
     }
 
-    public OrderResponse getOrderById(UUID id) {
+    public OrderResponse getOrderById(UUID userId, UUID orderId) {
 
-        /* User logado e dono da order ou Admin */
-
-        Order order = orderRepository.findById(id)
+        Order order = orderRepository.findById(userId)
             .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND));
+
+        if ()
             
         return mapToOrderResponse(order);
     }
