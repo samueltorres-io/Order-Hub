@@ -42,25 +42,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderService {
 
-    private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final OutboxRepository outboxRepository;
+    private final RoleService roleService;
     private final ObjectMapper objectMapper;
 
     @Transactional
-    public OrderResponse create(CreateOrderRequest req) {
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
-            throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
-        }
-
-        Jwt jwt = (Jwt) auth.getPrincipal();
-        UUID userId = UUID.fromString(jwt.getSubject());
-
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new AppException(ErrorCode.USR_NOT_FOUND, HttpStatus.NOT_FOUND));
+    public OrderResponse create(User user, CreateOrderRequest req) {
 
         List<UUID> productIds = req.items().stream().map(OrderItemRequest::productId).toList();
         List<Product> products = productRepository.findAllById(productIds);
@@ -145,12 +134,20 @@ public class OrderService {
         );
     }
 
-    public Page<OrderResponse> getAll(Pageable pageable) {
+    public Page<OrderResponse> getAll(User user, Pageable pageable) {
+
+        if (!roleService.verifyRole(user.getId(), "ADMIN")) {
+            throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        }
+
         return orderRepository.findAll(pageable)
             .map(this::mapToOrderResponse);
     }
 
     public OrderResponse getOrderById(UUID id) {
+
+        /* User logado e Admin */
+
         Order order = orderRepository.findById(id)
             .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND));
             
