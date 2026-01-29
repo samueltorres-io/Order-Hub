@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.orderhub.dto.order.request.CreateOrderRequest;
 import com.orderhub.dto.order.response.OrderResponse;
+import com.orderhub.entity.User;
+import com.orderhub.security.CurrentUser;
 import com.orderhub.service.OrderService;
 
 import jakarta.validation.Valid;
@@ -26,14 +28,14 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderResponse> create(@RequestBody @Valid CreateOrderRequest req) {
-        var response = orderService.create(req);
+    public ResponseEntity<OrderResponse> create(@CurrentUser User user, @RequestBody @Valid CreateOrderRequest req) {
+        var response = orderService.create(user, req);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderResponse> getOrderById(@PathVariable UUID orderId) {
-        var response = orderService.getOrderById(orderId);
+    public ResponseEntity<OrderResponse> getOrderById(@CurrentUser User user, @PathVariable UUID orderId) {
+        var response = orderService.getOrderById(user, orderId);
         return ResponseEntity.ok(response);
     }
 }
