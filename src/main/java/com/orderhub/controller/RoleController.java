@@ -12,11 +12,14 @@ import org.springframework.web.bind.annotation.*;
 
 import com.orderhub.dto.error.ApiError;
 import com.orderhub.dto.role.request.AssociateUnlink;
+import com.orderhub.entity.User;
 import com.orderhub.exception.AppException;
 import com.orderhub.exception.ErrorCode;
+import com.orderhub.security.CurrentUser;
 import com.orderhub.service.RoleService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -88,19 +91,15 @@ public class RoleController {
     @PostMapping("/{id}/roles")
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<Void> associate(
+        @Parameter(hidden = true) @CurrentUser User user,
         @PathVariable UUID id,
         @RequestBody AssociateUnlink req,
         Authentication authentication
     ) {
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-        UUID adminId = UUID.fromString(jwt.getClaim("id").toString());
-
-        if (roleService.verifyRole(adminId, "ADMIN")) {
+        if (roleService.verifyRole(user.getId(), "ADMIN")) {
             throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.FORBIDDEN);
         }
-
         roleService.associateRole(id, req.roleName());
-
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -140,19 +139,15 @@ public class RoleController {
     @DeleteMapping("/{id}/roles/{roleName}")
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<Void> unlink(
+        @Parameter(hidden = true) @CurrentUser User user,
         @PathVariable UUID id,
         @PathVariable String roleName,
         Authentication authentication
     ) {
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-        UUID adminId = UUID.fromString(jwt.getClaim("id").toString());
-
-        if (!roleService.verifyRole(adminId, "ADMIN")) {
+        if (!roleService.verifyRole(user.getId(), "ADMIN")) {
             throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.FORBIDDEN);
         }
-
         roleService.unlinkRole(id, roleName);
-        
         return ResponseEntity.noContent().build();
     }
 
