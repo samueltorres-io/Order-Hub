@@ -149,7 +149,11 @@ public class OrderService {
         Order order = orderRepository.findById(userId)
             .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND));
 
-        if ()
+        /* User logado e dono da order ou Admin */
+        if (
+            order.getUser().getId() != userId ||
+            !roleService.verifyRole(userId, "ADMIN")
+        ) { throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED); }
             
         return mapToOrderResponse(order);
     }
