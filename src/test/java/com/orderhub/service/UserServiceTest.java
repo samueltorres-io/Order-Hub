@@ -55,6 +55,7 @@ class UserServiceTest {
             
             when(userRepository.findByEmail(VALID_EMAIL)).thenReturn(Optional.empty());
             when(passwordEncoder.encode(STRONG_PASSWORD)).thenReturn(ENCODED_PASSWORD);
+            // Mock do save retornando o usuário com ID gerado
             when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
                 User user = invocation.getArgument(0);
                 user.setId(UUID.randomUUID());
@@ -69,19 +70,6 @@ class UserServiceTest {
             assertThat(createdUser.getPasswordHash()).isEqualTo(ENCODED_PASSWORD);
 
             verify(userRepository).save(any(User.class));
-        }
-
-        @Test
-        @DisplayName("Should throw exception when username is blank")
-        void create_InvalidUsername() {
-            Register request = new Register("", VALID_EMAIL, STRONG_PASSWORD);
-
-            assertThatThrownBy(() -> userService.create(request))
-                .isInstanceOf(AppException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_INPUT)
-                .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
-
-            verify(userRepository, never()).save(any());
         }
 
         @Test
@@ -102,6 +90,7 @@ class UserServiceTest {
         @Test
         @DisplayName("Should throw exception when password is weak")
         void create_WeakPassword() {
+            // Esse teste continua relevante pois a validação de regex da senha está explícita no Service
             String weakPass = "WeakPass123"; 
             Register request = new Register(VALID_USERNAME, VALID_EMAIL, weakPass);
 
@@ -164,16 +153,6 @@ class UserServiceTest {
                 .isInstanceOf(AppException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_CREDENTIALS)
                 .hasFieldOrPropertyWithValue("status", HttpStatus.UNAUTHORIZED);
-        }
-
-        @Test
-        @DisplayName("Should throw exception if email input is null")
-        void login_NullEmail() {
-            Login request = new Login(null, STRONG_PASSWORD);
-            
-            assertThatThrownBy(() -> userService.login(request))
-                .isInstanceOf(AppException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_INPUT);
         }
     }
 

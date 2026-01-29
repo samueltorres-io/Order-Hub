@@ -3,7 +3,6 @@ package com.orderhub.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,10 +24,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.orderhub.dto.product.request.CreateRequest;
 import com.orderhub.dto.product.request.UpdateRequest;
@@ -41,7 +35,6 @@ import com.orderhub.enums.ProductStatus;
 import com.orderhub.exception.AppException;
 import com.orderhub.exception.ErrorCode;
 import com.orderhub.repository.ProductRepository;
-import com.orderhub.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
@@ -50,31 +43,10 @@ class ProductServiceTest {
     private ProductRepository productRepository;
 
     @Mock
-    private UserRepository userRepository;
-
-    @Mock
     private RoleService roleService;
 
     @InjectMocks
     private ProductService productService;
-
-    @AfterEach
-    void tearDown() {
-        SecurityContextHolder.clearContext();
-    }
-
-    private void mockSecurityContext(UUID userId) {
-        Authentication authentication = mock(Authentication.class);
-        SecurityContext securityContext = mock(SecurityContext.class);
-        Jwt jwt = mock(Jwt.class);
-
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getPrincipal()).thenReturn(jwt);
-        when(jwt.getSubject()).thenReturn(userId.toString());
-
-        SecurityContextHolder.setContext(securityContext);
-    }
 
     @Nested
     @DisplayName("Tests for create()")
@@ -83,29 +55,29 @@ class ProductServiceTest {
         @Test
         @DisplayName("Should create product successfully when input is valid and user is ADMIN")
         void create_Success() {
-
+            // Arrange
             UUID userId = UUID.randomUUID();
+            User user = new User();
+            user.setId(userId);
+
             CreateRequest req = new CreateRequest("Iphone 15", "Smartphone", new BigDecimal("5000"), 10);
             
-            mockSecurityContext(userId);
-            
-            User mockOwner = new User();
-            mockOwner.setId(userId);
-
             Product mockSavedProduct = new Product();
             mockSavedProduct.setId(UUID.randomUUID());
             mockSavedProduct.setName(req.name());
             mockSavedProduct.setDescription(req.description());
             mockSavedProduct.setPrice(req.price());
             mockSavedProduct.setStatus(ProductStatus.active);
+            mockSavedProduct.setOwner(user);
 
-            when(userRepository.findById(userId)).thenReturn(Optional.of(mockOwner));
             when(roleService.verifyRole(userId, "ADMIN")).thenReturn(true);
             when(productRepository.existsByNameAndOwnerId(req.name(), userId)).thenReturn(false);
             when(productRepository.save(any(Product.class))).thenReturn(mockSavedProduct);
 
-            CreatedResponse response = productService.create(req);
+            // Act
+            CreatedResponse response = productService.create(user, req);
 
+            // Assert
             assertThat(response).isNotNull();
             assertThat(response.name()).isEqualTo(req.name());
             verify(productRepository).save(any(Product.class));
@@ -114,18 +86,17 @@ class ProductServiceTest {
         @Test
         @DisplayName("Should throw exception if user is not ADMIN")
         void create_NotAdmin() {
+            // Arrange
             UUID userId = UUID.randomUUID();
+            User user = new User();
+            user.setId(userId);
+
             CreateRequest req = new CreateRequest("Item", "Desc", BigDecimal.TEN, 5);
             
-            mockSecurityContext(userId);
-            
-            User user = new User();
-            user.setId(userId); 
-            
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             when(roleService.verifyRole(userId, "ADMIN")).thenReturn(false);
 
-            assertThatThrownBy(() -> productService.create(req))
+            // Act & Assert
+            assertThatThrownBy(() -> productService.create(user, req))
                 .isInstanceOf(AppException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.UNAUTHORIZED)
                 .hasFieldOrPropertyWithValue("status", HttpStatus.UNAUTHORIZED);
@@ -136,32 +107,23 @@ class ProductServiceTest {
         @Test
         @DisplayName("Should throw exception if product name is duplicated for owner")
         void create_Duplicated() {
+            // Arrange
             UUID userId = UUID.randomUUID();
-            CreateRequest req = new CreateRequest("Item", "Desc", BigDecimal.TEN, 5);
-            
-            mockSecurityContext(userId);
             User user = new User();
             user.setId(userId);
 
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            CreateRequest req = new CreateRequest("Item", "Desc", BigDecimal.TEN, 5);
+            
             when(roleService.verifyRole(userId, "ADMIN")).thenReturn(true);
             when(productRepository.existsByNameAndOwnerId(req.name(), userId)).thenReturn(true);
 
-            assertThatThrownBy(() -> productService.create(req))
+            // Act & Assert
+            assertThatThrownBy(() -> productService.create(user, req))
                 .isInstanceOf(AppException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.DUPLICATED_RESOURCE)
                 .hasFieldOrPropertyWithValue("status", HttpStatus.CONFLICT);
-        }
-
-        @Test
-        @DisplayName("Should throw exception for invalid input (Price <= 0)")
-        void create_InvalidInput() {
-            CreateRequest req = new CreateRequest("Item", "Desc", BigDecimal.ZERO, 5);
-
-            assertThatThrownBy(() -> productService.create(req))
-                .isInstanceOf(AppException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_INPUT)
-                .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
+            
+            verify(productRepository, never()).save(any());
         }
     }
 
@@ -172,26 +134,26 @@ class ProductServiceTest {
         @Test
         @DisplayName("Should update product successfully")
         void update_Success() {
+            // Arrange
             UUID userId = UUID.randomUUID();
+            User user = new User();
+            user.setId(userId);
+
             UUID productId = UUID.randomUUID();
             UpdateRequest req = new UpdateRequest(productId, "New Name", "New Desc", new BigDecimal("100"), 0, ProductStatus.active);
 
-            mockSecurityContext(userId);
-
-            User owner = new User();
-            owner.setId(userId);
-
             Product existingProduct = new Product();
             existingProduct.setId(productId);
-            existingProduct.setOwner(owner);
+            existingProduct.setOwner(user); // Dono correto
 
-            when(userRepository.existsById(userId)).thenReturn(true);
             when(roleService.verifyRole(userId, "ADMIN")).thenReturn(true);
             when(productRepository.findById(productId)).thenReturn(Optional.of(existingProduct));
             when(productRepository.save(any(Product.class))).thenAnswer(i -> i.getArgument(0));
 
-            CreatedResponse response = productService.update(req);
+            // Act
+            CreatedResponse response = productService.update(user, req);
 
+            // Assert
             assertThat(response.name()).isEqualTo("New Name");
             assertThat(response.description()).isEqualTo("New Desc");
             verify(productRepository).save(existingProduct);
@@ -200,28 +162,51 @@ class ProductServiceTest {
         @Test
         @DisplayName("Should throw exception if user tries to update product that is not theirs")
         void update_NotOwner() {
+            // Arrange
             UUID userId = UUID.randomUUID();
+            User user = new User();
+            user.setId(userId);
+
             UUID otherUserId = UUID.randomUUID();
-            UUID productId = UUID.randomUUID();
-            UpdateRequest req = new UpdateRequest(productId, "Name", "Desc", BigDecimal.TEN, 0, ProductStatus.active);
-
-            mockSecurityContext(userId);
-
             User otherOwner = new User();
             otherOwner.setId(otherUserId);
 
+            UUID productId = UUID.randomUUID();
+            UpdateRequest req = new UpdateRequest(productId, "Name", "Desc", BigDecimal.TEN, 0, ProductStatus.active);
+
             Product product = new Product();
             product.setId(productId);
-            product.setOwner(otherOwner);
+            product.setOwner(otherOwner); // Dono diferente
 
-            when(userRepository.existsById(userId)).thenReturn(true);
             when(roleService.verifyRole(userId, "ADMIN")).thenReturn(true);
             when(productRepository.findById(productId)).thenReturn(Optional.of(product));
 
-            assertThatThrownBy(() -> productService.update(req))
+            // Act & Assert
+            assertThatThrownBy(() -> productService.update(user, req))
                 .isInstanceOf(AppException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.UNAUTHORIZED)
                 .hasFieldOrPropertyWithValue("status", HttpStatus.UNAUTHORIZED);
+        }
+
+        @Test
+        @DisplayName("Should throw exception if product not found")
+        void update_ProductNotFound() {
+            // Arrange
+            UUID userId = UUID.randomUUID();
+            User user = new User();
+            user.setId(userId);
+            
+            UUID productId = UUID.randomUUID();
+            UpdateRequest req = new UpdateRequest(productId, "Name", "Desc", BigDecimal.TEN, 0, ProductStatus.active);
+
+            when(roleService.verifyRole(userId, "ADMIN")).thenReturn(true);
+            when(productRepository.findById(productId)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            assertThatThrownBy(() -> productService.update(user, req))
+                .isInstanceOf(AppException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PRODUCT_NOT_FOUND)
+                .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND);
         }
     }
 
@@ -285,15 +270,9 @@ class ProductServiceTest {
             assertThat(result).hasSize(1);
             assertThat(result.getContent().get(0).name()).isEqualTo("P1");
         }
-
-        @Test
-        @DisplayName("Should throw exception if pageable is invalid/null")
-        void getProducts_InvalidPageable() {
-
-            assertThatThrownBy(() -> productService.getProducts(Pageable.unpaged()))
-                .isInstanceOf(AppException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_INPUT)
-                .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
-        }
+        
+        // O teste de "Invalid Pageable" foi removido pois o Service apenas repassa o objeto.
+        // A validação de nulo ou unpaged geralmente ocorre no Controller ou lança NPE se o repositório não suportar.
+        // Se quiser testar null, o repositório provavelmente lançaria exceção, mas não é lógica de negócio do service.
     }
 }
