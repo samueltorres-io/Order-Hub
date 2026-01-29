@@ -18,9 +18,12 @@ import com.orderhub.dto.product.request.CreateRequest;
 import com.orderhub.dto.product.request.UpdateRequest;
 import com.orderhub.dto.product.response.CreatedResponse;
 import com.orderhub.dto.product.response.ProductResponse;
+import com.orderhub.entity.User;
+import com.orderhub.security.CurrentUser;
 import com.orderhub.service.ProductService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -101,8 +104,11 @@ public class ProductController {
     })
     @PostMapping("/")
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<CreatedResponse> create(@Valid @RequestBody CreateRequest req) {
-        var response = productService.create(req);
+    public ResponseEntity<CreatedResponse> create(
+        @Parameter(hidden = true) @CurrentUser User user,
+        @Valid @RequestBody CreateRequest req
+    ) {
+        var response = productService.create(user, req);
         return ResponseEntity.ok(response);
     }
 

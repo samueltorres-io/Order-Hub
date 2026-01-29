@@ -34,24 +34,13 @@ public class ProductService {
     private final RoleService roleService;
 
     @Transactional
-    public CreatedResponse create(CreateRequest req) {
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
-            throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
-        }
-
-        Jwt jwt = (Jwt) auth.getPrincipal();
-        UUID ownerId = UUID.fromString(jwt.getSubject());
-
-        User user = userRepository.findById(ownerId)
-            .orElseThrow(() -> new AppException(ErrorCode.USR_NOT_FOUND, HttpStatus.NOT_FOUND));
+    public CreatedResponse create(User user, CreateRequest req) {
 
         if (!roleService.verifyRole(user.getId(), "ADMIN")) {
             throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         }
 
-        if (productRepository.existsByNameAndOwnerId(req.name(), ownerId)) {
+        if (productRepository.existsByNameAndOwnerId(req.name(), user.getId())) {
             throw new AppException(ErrorCode.DUPLICATED_RESOURCE, HttpStatus.CONFLICT);
         }
 
