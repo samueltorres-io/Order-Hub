@@ -56,21 +56,9 @@ public class ProductService {
     }
 
     @Transactional
-    public CreatedResponse update(UpdateRequest req) {
+    public CreatedResponse update(User user, UpdateRequest req) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
-            throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
-        }
-
-        Jwt jwt = (Jwt) auth.getPrincipal();
-        UUID userId = UUID.fromString(jwt.getSubject());
-
-        if (!userRepository.existsById(userId)) {
-            throw new AppException(ErrorCode.USR_NOT_FOUND, HttpStatus.NOT_FOUND);
-        }
-
-        if (!roleService.verifyRole(userId, "ADMIN")) {
+        if (!roleService.verifyRole(user.getId(), "ADMIN")) {
             throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         }
 
@@ -80,7 +68,7 @@ public class ProductService {
                 HttpStatus.NOT_FOUND
             ));
 
-        if (!product.getOwner().getId().equals(userId)) {
+        if (!product.getOwner().getId().equals(user.getId())) {
             throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         }
 

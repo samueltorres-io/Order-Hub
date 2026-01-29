@@ -157,8 +157,11 @@ public class ProductController {
     })
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-    public ResponseEntity<CreatedResponse> update(@Valid @PathVariable UpdateRequest req) {
-        var response = productService.update(req);
+    public ResponseEntity<CreatedResponse> update(
+        @Parameter(hidden = true) @CurrentUser User user,
+        @Valid @PathVariable UpdateRequest req
+    ) {
+        var response = productService.update(user, req);
         return ResponseEntity.ok(response);
     }
 
