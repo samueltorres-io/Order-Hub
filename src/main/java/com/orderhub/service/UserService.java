@@ -30,21 +30,9 @@ public class UserService {
     @Transactional
     public User create(Register req) {
 
-        if (req.username() == null || req.username().isBlank()) {
-            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
-        }
-
-        if (req.email() == null || req.email().isBlank()) {
-            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
-        }
-
         Optional<User> emailExist = userRepository.findByEmail(req.email());
         if (emailExist.isPresent()) {
             throw new AppException(ErrorCode.USR_ALREADY_EXISTS, HttpStatus.CONFLICT);
-        }
-
-        if (req.password() == null || req.password().isBlank()) {
-            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
         }
 
         /**
@@ -74,14 +62,6 @@ public class UserService {
 
     @Transactional
     public User login(Login req) {
-
-        if (req.email() == null || req.email().isBlank()) {
-            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
-        }
-
-        if (req.password() == null || req.password().isBlank()) {
-            throw new AppException(ErrorCode.INVALID_INPUT, HttpStatus.BAD_REQUEST);
-        }
 
         User user = userRepository.findByEmail(req.email())
             .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED));
