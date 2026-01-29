@@ -9,6 +9,8 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -143,20 +145,29 @@ public class OrderService {
         );
     }
 
-    public OrderResponse getOrderById(UUID id) {
+    public Page<OrderResponse> getAll(Pageable pageable) {
+        return orderRepository.findAll(pageable)
+            .map(this::mapToOrderResponse);
+    }
 
+    public OrderResponse getOrderById(UUID id) {
         Order order = orderRepository.findById(id)
             .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND));
+            
+        return mapToOrderResponse(order);
+    }
 
-        List<OrderResponse.OrderItemResponse> items = order.getItems().stream().map(item -> new OrderResponse.OrderItemResponse(
-            item.getProduct().getId(),
-            item.getProduct().getName(),
-            item.getQuantity(),
-            item.getUnitPrice(),
-            item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()))
-        ))
-        .toList();
-
+    private OrderResponse mapToOrderResponse(Order order) {
+        List<OrderResponse.OrderItemResponse> items = order.getItems().stream()
+            .map(item -> new OrderResponse.OrderItemResponse(
+                item.getProduct().getId(),
+                item.getProduct().getName(),
+                item.getQuantity(),
+                item.getUnitPrice(),
+                item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()))
+            ))
+            .toList();
+    
         return new OrderResponse(
             order.getId(),
             order.getTotal(),
