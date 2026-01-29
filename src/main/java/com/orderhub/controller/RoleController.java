@@ -2,7 +2,6 @@ package com.orderhub.controller;
 
 import java.util.UUID;
 
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.core.Authentication;
 
 import org.springframework.http.HttpStatus;
