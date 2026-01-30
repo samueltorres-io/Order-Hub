@@ -4,9 +4,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import org.hibernate.annotations.Check;
-import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.UuidGenerator;
-import org.hibernate.generator.EventType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
