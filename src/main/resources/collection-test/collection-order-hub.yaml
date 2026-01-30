@@ -1,0 +1,424 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: Order-Hub
+meta:
+  id: wrk_1bb81efd049342b599b91d09cfac23bf
+  created: 1769741787041
+  modified: 1769741787041
+  description: ""
+collection:
+  - name: Auth
+    meta:
+      id: fld_8f22319ef118449ca5a1130385ffd7aa
+      created: 1769741863889
+      modified: 1769741863889
+      sortKey: -1769741863889
+      description: ""
+    children:
+      - url: http://localhost:8080/api/auth/register
+        name: Register
+        meta:
+          id: req_e5c39186410c488bb95fa436226dc78c
+          created: 1769741792981
+          modified: 1769780375880
+          isPrivate: false
+          description: ""
+          sortKey: -1769741867190
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"username": "samueltorres-io",
+            	"email": "test@gmail.com",
+            	"password": "Teste123!"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/api/auth/login
+        name: Login
+        meta:
+          id: req_ac7f7e4ee5de46cab3af552bad0e3dea
+          created: 1769742195848
+          modified: 1769742567742
+          isPrivate: false
+          description: ""
+          sortKey: -1769741867290
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"email": "test@gmail.com",
+            	"password": "Teste123!"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/api/auth/refresh
+        name: Refresh
+        meta:
+          id: req_a603dc317f324f21bbe167ec2215fc28
+          created: 1769742492328
+          modified: 1769792467182
+          isPrivate: false
+          description: ""
+          sortKey: -1769741867390
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"refreshToken": "d9c1581b-abb4-44a3-b7f1-06700db33af6"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Perms
+    meta:
+      id: fld_17f06ac2866046888ce52a8b289a82ed
+      created: 1769741884767
+      modified: 1769741884767
+      sortKey: -1769741884767
+      description: ""
+    children:
+      - url: http://localhost:8080/api/admin/users/2d487bac-cb5a-46e0-a32f-f3f60ada408b/roles
+        name: Add Role
+        meta:
+          id: req_e08f3513e2e04d6587fd3cad0d688731
+          created: 1769778340596
+          modified: 1769781814604
+          isPrivate: false
+          description: ""
+          sortKey: -1769778340596
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "roleName": "USER"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIyZDQ4N2JhYy1jYjVhLTQ2ZTAtYTMyZi1mM2Y2MGFkYTQwOGIiLCJyb2xlcyI6WyJVU0VSIl0sInNjb3BlIjoiVVNFUiIsImlzcyI6Im9yZGVyaHViLWFwaSIsImlkIjoiMmQ0ODdiYWMtY2I1YS00NmUwLWEzMmYtZjNmNjBhZGE0MDhiIiwiZXhwIjoxNzY5NzgyNTA3LCJpYXQiOjE3Njk3ODE2MDd9.SKzscH7kCrz1YnMQA97Zp6tGD7ruDnQ-wTefCOBPskai2dpr_vuAj9eGamXsSuoBEmz88bRKLmUJde6NMML7uhfWXvRpm-_vVE54hmyTct6RZpv_AWLA51KQ2rv9_5JsOwphNpondkkIiDn8-4cejex9jYVgDun2zeGrvmStvFOT942jhxYVlekyLDlNieGJXQdVWFNuiO9y4X8Jg0dV4rtT8dXryb0N2ZoIKS_HRslxe60CjkgCNZKlksF3QL53Xp6MbhYCOhzp0TtcJ8_C4LCV3nvVQD_T1s-Kl4W6GQy8pG7LoLohQXRrWitHCbNojUdo6G9yOR8Ox53hfqohOg
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/api/admin/users/2d487bac-cb5a-46e0-a32f-f3f60ada408b/roles/USER
+        name: Remove Role
+        meta:
+          id: req_6b3b161cfe1a4ca6ac87f3ca500ddbf2
+          created: 1769778872073
+          modified: 1769781791830
+          isPrivate: false
+          description: ""
+          sortKey: -1769778340696
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIyZDQ4N2JhYy1jYjVhLTQ2ZTAtYTMyZi1mM2Y2MGFkYTQwOGIiLCJyb2xlcyI6WyJVU0VSIl0sInNjb3BlIjoiVVNFUiIsImlzcyI6Im9yZGVyaHViLWFwaSIsImlkIjoiMmQ0ODdiYWMtY2I1YS00NmUwLWEzMmYtZjNmNjBhZGE0MDhiIiwiZXhwIjoxNzY5NzgyNTA3LCJpYXQiOjE3Njk3ODE2MDd9.SKzscH7kCrz1YnMQA97Zp6tGD7ruDnQ-wTefCOBPskai2dpr_vuAj9eGamXsSuoBEmz88bRKLmUJde6NMML7uhfWXvRpm-_vVE54hmyTct6RZpv_AWLA51KQ2rv9_5JsOwphNpondkkIiDn8-4cejex9jYVgDun2zeGrvmStvFOT942jhxYVlekyLDlNieGJXQdVWFNuiO9y4X8Jg0dV4rtT8dXryb0N2ZoIKS_HRslxe60CjkgCNZKlksF3QL53Xp6MbhYCOhzp0TtcJ8_C4LCV3nvVQD_T1s-Kl4W6GQy8pG7LoLohQXRrWitHCbNojUdo6G9yOR8Ox53hfqohOg
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Products
+    meta:
+      id: fld_4152d8a2fbfb44caa247fc91625e94ea
+      created: 1769779274608
+      modified: 1769779274608
+      sortKey: -1769779274608
+      description: ""
+    children:
+      - url: http://localhost:8080/api/products
+        name: Create
+        meta:
+          id: req_b8cdf1735d3e4e1c9dde1df23e7f805f
+          created: 1769779278145
+          modified: 1769783202845
+          isPrivate: false
+          description: ""
+          sortKey: -1769779280592
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "name": "Notebook Gamer",
+              "description": "i7 16GB RAM RTX 4060",
+              "price": 4500.00,
+              "stock": 10
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIyZDQ4N2JhYy1jYjVhLTQ2ZTAtYTMyZi1mM2Y2MGFkYTQwOGIiLCJyb2xlcyI6WyJBRE1JTiJdLCJzY29wZSI6IlVTRVIiLCJpc3MiOiJvcmRlcmh1Yi1hcGkiLCJpZCI6IjJkNDg3YmFjLWNiNWEtNDZlMC1hMzJmLWYzZjYwYWRhNDA4YiIsImV4cCI6MTc2OTc4NDA4MywiaWF0IjoxNzY5NzgzMTgzfQ.Gt2jc25xhVJ8BcHzLUse7gfVzF1Nc6bX4EoanfS77spygp5zD5ISVcXFz8UV8OqRw1S9aEg7OtrNLNoraJpNgF7qdZbOV-Mnu9Yn_D6AyONVxyznuSN--9IwIrUpZaVH-muiN90RT8e4aCfPhDDmPVXL2-JCNTfIS2-tD8VzIFd4Ox5JDkMleP9pQr4Ta9BPNkYFnRGWqYGOTfa2ekUFmxofk9T26Uuv2y94ceX9EDN_a1UPISa4yors6txcZqX_ISntShAQoF-SE_KMeMJxuSb6AspzNBllA5N_s7WVld2e6EMZOi89x4SdanacJu32qVgz6B58bAkgaQjW93xcLA
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/api/products/9eac0255-7d51-4fad-8f48-130cae4aa2fb
+        name: Get By Id
+        meta:
+          id: req_7d0c414163cb4181be65d892f73fad77
+          created: 1769783214421
+          modified: 1769789235095
+          isPrivate: false
+          description: ""
+          sortKey: -1769779280692
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/api/products/9eac0255-7d51-4fad-8f48-130cae4aa2fb
+        name: Update By Id
+        meta:
+          id: req_3648e26d19294feca5c3aa587886051c
+          created: 1769789670147
+          modified: 1769790414670
+          isPrivate: false
+          description: ""
+          sortKey: -1769779280792
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "name": "Notebook Gamer Pro",
+              "description": "i7 32GB RAM RTX 4060 (Upgrade de RAM)",
+              "price": 4800.00,
+              "stock": 8,
+            	"status": "disable"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIyZDQ4N2JhYy1jYjVhLTQ2ZTAtYTMyZi1mM2Y2MGFkYTQwOGIiLCJyb2xlcyI6WyJBRE1JTiJdLCJzY29wZSI6IlVTRVIiLCJpc3MiOiJvcmRlcmh1Yi1hcGkiLCJpZCI6IjJkNDg3YmFjLWNiNWEtNDZlMC1hMzJmLWYzZjYwYWRhNDA4YiIsImV4cCI6MTc2OTc5MDY3NywiaWF0IjoxNzY5Nzg5Nzc3fQ.bN5CIE08rcPsgIxNDtfiy4b4eWey9qjMw7np9ZKsVRDIgib7UI9CircXhwYVDIKZ-W9S1FPpecoP6i4ZiOTiPtpX1r2PgJaSm6VlD8H7aSKXHZeHX2skYYfXx5yJpbOQvj57-93da1i95avSKgBe5X4cFF6nUaM-eKPo9lx-Z6BDmdTbbfQZuyhi350128tHi88CzXNry8L-4dE9KU-JmOfI22M7wHdtnO4LXTidtmcd-srdoj-9NHW_lh-HtoLB83mqtBJTuGfRvyGPWC_XD7Wl74elGGexHGb2o1s83KMTAd0PYr0iJ5NcM7bF_Eudz1yGnvbWE7cW15Lp9Ds08Q
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/api/products?page=0&size=10
+        name: Get All
+        meta:
+          id: req_0319b78f3a9c4ab28e52ee8743a5368a
+          created: 1769789858666
+          modified: 1769789873702
+          isPrivate: false
+          description: ""
+          sortKey: -1769779280892
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Orders
+    meta:
+      id: fld_3ed044124bdd43e993f7fa19975c71c2
+      created: 1769790612549
+      modified: 1769790612549
+      sortKey: -1769790612549
+      description: ""
+    children:
+      - url: http://localhost:8080/api/orders
+        name: Create
+        meta:
+          id: req_6e8d6ce0bde74b6695bbfc3c9e287c99
+          created: 1769790698129
+          modified: 1769792499350
+          isPrivate: false
+          description: ""
+          sortKey: -1769790698129
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "items": [
+                {
+                  "productId": "9eac0255-7d51-4fad-8f48-130cae4aa2fb",
+                  "quantity": 1
+                }
+              ]
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIyZDQ4N2JhYy1jYjVhLTQ2ZTAtYTMyZi1mM2Y2MGFkYTQwOGIiLCJyb2xlcyI6WyJBRE1JTiJdLCJzY29wZSI6IlVTRVIiLCJpc3MiOiJvcmRlcmh1Yi1hcGkiLCJpZCI6IjJkNDg3YmFjLWNiNWEtNDZlMC1hMzJmLWYzZjYwYWRhNDA4YiIsImV4cCI6MTc2OTc5MzM3MSwiaWF0IjoxNzY5NzkyNDcxfQ.a8Qg7uIQ7kt4imG4D3emTNMwVrN_a-madPfLhvvr5YMf4N-Anz70QE22okJguWjh9pRCfsH9Od_iHhSo1QtKXe1fBlj39gQCZJWDFE5Xktf9kjvPlY1h4RMZTpp_kKhUO2SFifPAQknbOqmQ6NNEgV3hHUINEnX1ETBlZH07VRsbklaMEkA-olJEQGEMdWtRDp90GsgkPLKNtNP9fsVz_4tm3x1VhecxfQg1vv4VbHeBL88YbXBr0qOtyqjZgmADU5x58PQkWsy4501InclvP4xZwb80fK_fHZ_ww80mWGKy0QTkxxzLIAOVEelA4CX5GAVZiZwx09ZD55L3fLWGIA
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/api/orders/575b5218-1ad3-4eae-9409-34d4ed94fec8
+        name: Get By Id
+        meta:
+          id: req_7aaf6514351e46e88fcb7b88879ff7e2
+          created: 1769790812105
+          modified: 1769792533386
+          isPrivate: false
+          description: ""
+          sortKey: -1769790812105
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIyZDQ4N2JhYy1jYjVhLTQ2ZTAtYTMyZi1mM2Y2MGFkYTQwOGIiLCJyb2xlcyI6WyJBRE1JTiJdLCJzY29wZSI6IlVTRVIiLCJpc3MiOiJvcmRlcmh1Yi1hcGkiLCJpZCI6IjJkNDg3YmFjLWNiNWEtNDZlMC1hMzJmLWYzZjYwYWRhNDA4YiIsImV4cCI6MTc2OTc5MzM3MSwiaWF0IjoxNzY5NzkyNDcxfQ.a8Qg7uIQ7kt4imG4D3emTNMwVrN_a-madPfLhvvr5YMf4N-Anz70QE22okJguWjh9pRCfsH9Od_iHhSo1QtKXe1fBlj39gQCZJWDFE5Xktf9kjvPlY1h4RMZTpp_kKhUO2SFifPAQknbOqmQ6NNEgV3hHUINEnX1ETBlZH07VRsbklaMEkA-olJEQGEMdWtRDp90GsgkPLKNtNP9fsVz_4tm3x1VhecxfQg1vv4VbHeBL88YbXBr0qOtyqjZgmADU5x58PQkWsy4501InclvP4xZwb80fK_fHZ_ww80mWGKy0QTkxxzLIAOVEelA4CX5GAVZiZwx09ZD55L3fLWGIA
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: http://localhost:8080/api/orders/admin?page=0&size=10
+        name: Get All
+        meta:
+          id: req_60e4b892096a4a798c13e79811ff62f4
+          created: 1769790851514
+          modified: 1769792556212
+          isPrivate: false
+          description: ""
+          sortKey: -1769790851514
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.2.0
+            description: ""
+            disabled: false
+        authentication:
+          type: bearer
+          token: eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIyZDQ4N2JhYy1jYjVhLTQ2ZTAtYTMyZi1mM2Y2MGFkYTQwOGIiLCJyb2xlcyI6WyJBRE1JTiJdLCJzY29wZSI6IlVTRVIiLCJpc3MiOiJvcmRlcmh1Yi1hcGkiLCJpZCI6IjJkNDg3YmFjLWNiNWEtNDZlMC1hMzJmLWYzZjYwYWRhNDA4YiIsImV4cCI6MTc2OTc5MzM3MSwiaWF0IjoxNzY5NzkyNDcxfQ.a8Qg7uIQ7kt4imG4D3emTNMwVrN_a-madPfLhvvr5YMf4N-Anz70QE22okJguWjh9pRCfsH9Od_iHhSo1QtKXe1fBlj39gQCZJWDFE5Xktf9kjvPlY1h4RMZTpp_kKhUO2SFifPAQknbOqmQ6NNEgV3hHUINEnX1ETBlZH07VRsbklaMEkA-olJEQGEMdWtRDp90GsgkPLKNtNP9fsVz_4tm3x1VhecxfQg1vv4VbHeBL88YbXBr0qOtyqjZgmADU5x58PQkWsy4501InclvP4xZwb80fK_fHZ_ww80mWGKy0QTkxxzLIAOVEelA4CX5GAVZiZwx09ZD55L3fLWGIA
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_325dcb5014932034a1862934d0e724d60c6ac9f3
+    created: 1769741787046
+    modified: 1769741787046
+environments:
+  name: Base Environment
+  meta:
+    id: env_325dcb5014932034a1862934d0e724d60c6ac9f3
+    created: 1769741787044
+    modified: 1769741787044
+    isPrivate: false
