@@ -61,6 +61,7 @@ public class OrderService {
         order.setUser(user);
         order.setStatus(OrderStatus.pending);
         order.setCreatedAt(Instant.now());
+        order.setUpdatedAt(Instant.now());
 
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal totalOrderValue = BigDecimal.ZERO;
