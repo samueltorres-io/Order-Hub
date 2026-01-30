@@ -60,8 +60,10 @@ public class OrderService {
         Order order = new Order();
         order.setUser(user);
         order.setStatus(OrderStatus.pending);
-        order.setCreatedAt(Instant.now());
-        order.setUpdatedAt(Instant.now());
+
+        Instant now = Instant.now();
+        order.setCreatedAt(now);
+        order.setUpdatedAt(now);
 
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal totalOrderValue = BigDecimal.ZERO;
@@ -88,13 +90,14 @@ public class OrderService {
         }
 
         order.setTotal(totalOrderValue);
-
         order.setItems(orderItems); 
 
         Order savedOrder = orderRepository.save(order);
 
+        OrderResponse response = mapToOrderResponse(savedOrder);
+
         try {
-            String orderJson = objectMapper.writeValueAsString(savedOrder);
+            String orderJson = objectMapper.writeValueAsString(response);
 
             Outbox outbox = Outbox.builder()
                 .topic("orders-events")
@@ -108,27 +111,30 @@ public class OrderService {
             outboxRepository.save(outbox);
 
         } catch (Exception e) {
-            e.printStackTrace(); 
             throw new RuntimeException("Error processing outbox event", e);
         }
 
-        List<OrderResponse.OrderItemResponse> itemResponse = savedOrder.getItems().stream()
-            .map(item -> new OrderResponse.OrderItemResponse(
-                item.getProduct().getId(),
-                item.getProduct().getName(),
-                item.getQuantity(),
-                item.getUnitPrice(),
-                item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()))
-            ))
-            .toList();
+        /*
+            List<OrderResponse.OrderItemResponse> itemResponse = savedOrder.getItems().stream()
+                .map(item -> new OrderResponse.OrderItemResponse(
+                    item.getProduct().getId(),
+                    item.getProduct().getName(),
+                    item.getQuantity(),
+                    item.getUnitPrice(),
+                    item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()))
+                ))
+                .toList();
 
-        return new OrderResponse(
-            savedOrder.getId(),
-            savedOrder.getTotal(),
-            savedOrder.getStatus(),
-            savedOrder.getCreatedAt(),
-            itemResponse
-        );
+            return new OrderResponse(
+                savedOrder.getId(),
+                savedOrder.getTotal(),
+                savedOrder.getStatus(),
+                savedOrder.getCreatedAt(),
+                itemResponse
+            );
+        */
+
+        return response;
     }
 
     public Page<OrderResponse> getAll(User user, Pageable pageable) {
@@ -146,11 +152,12 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
             .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND));
 
-        /* User logado e dono da order ou Admin */
-        if (
-            order.getUser().getId() != userId &&
-            !roleService.verifyRole(userId, "ADMIN")
-        ) { throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED); }
+        boolean isOwner = order.getUser().getId().equals(userId);
+        boolean isAdmin = roleService.verifyRole(userId, "ADMIN");
+        
+        if (!isOwner && !isAdmin) { 
+            throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED); 
+        }
             
         return mapToOrderResponse(order);
     }
