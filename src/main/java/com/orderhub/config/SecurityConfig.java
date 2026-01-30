@@ -43,6 +43,7 @@ public class SecurityConfig {
                 authorize.requestMatchers(SWAGGER_WHITELIST).permitAll();
                 authorize.requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll();
                 authorize.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll();
+                authorize.requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll();
                 authorize.requestMatchers(HttpMethod.GET, "/api/products/**").permitAll();
                 authorize.anyRequest().authenticated();
             })
