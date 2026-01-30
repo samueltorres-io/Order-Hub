@@ -1,7 +1,6 @@
 package com.orderhub.dto.product.request;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 import com.orderhub.enums.ProductStatus;
 
