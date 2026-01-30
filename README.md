@@ -112,14 +112,14 @@ Product <-> OrderItem {
 
 * `POST /api/admin/users/{id}/roles` (Admin) - Atribui nova permissão a um usuário.
 
-* `DELETE /api/admin/users/{id}/roles/{role}` (Admin) - Remove permissão.
+* `DELETE /api/admin/users/{id}/roles/{role}` (Admin) - Remove permissão de um usuário.
 
 
 ### Produtos
 
 * `GET /api/products/{page}&{size}` (Público) - Lista todos os produtos com paginação.
 
-* `GET /api/products/{name}` (público) - Busca detalhes de um produto pelo nome.
+* `GET /api/products/{name}` (Público) - Busca detalhes de um produto pelo nome.
 
 * `POST /api/products` (Admin) - Cadastra um novo produto no catálogo.
 
