@@ -100,9 +100,9 @@ public class OrderController {
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponse> getOrderById(
         @Parameter(hidden = true) @CurrentUser User user,
-        @PathVariable UUID orderId
+        @PathVariable UUID id
     ) {
-        var response = orderService.getOrderById(user.getId(), orderId);
+        var response = orderService.getOrderById(user.getId(), id);
         return ResponseEntity.ok(response);
     }
 

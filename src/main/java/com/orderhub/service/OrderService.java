@@ -77,7 +77,7 @@ public class OrderService {
             orderItem.setProduct(product);
             orderItem.setQuantity(itemReq.quantity());
             orderItem.setUnitPrice(unitPrice);
-
+            orderItem.setSubtotal(itemTotal);
             orderItem.setOrder(order);
             orderItems.add(orderItem);
         }

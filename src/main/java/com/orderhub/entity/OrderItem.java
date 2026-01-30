@@ -56,8 +56,8 @@ public class OrderItem {
     @PositiveOrZero
     private BigDecimal unitPrice;
 
-    @Column(insertable = false, updatable = false)
-    @Generated(event = { EventType.INSERT, EventType.UPDATE })
+    @Column(name = "subtotal", nullable = false, precision = 12, scale = 2)
+    @PositiveOrZero
     private BigDecimal subtotal;
 
 }
