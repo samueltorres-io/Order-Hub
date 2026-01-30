@@ -1,5 +1,7 @@
 package com.orderhub.controller;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.orderhub.dto.error.ApiError;
@@ -102,7 +105,7 @@ public class ProductController {
             )
         )
     })
-    @PostMapping("/")
+    @PostMapping
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<CreatedResponse> create(
         @Parameter(hidden = true) @CurrentUser User user,
@@ -159,9 +162,17 @@ public class ProductController {
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<CreatedResponse> update(
         @Parameter(hidden = true) @CurrentUser User user,
-        @Valid @PathVariable UpdateRequest req
+        @PathVariable UUID id,
+        @Valid @RequestBody UpdateRequest req
     ) {
-        var response = productService.update(user, req);
+        var response = productService.update(user, id, req);
+        return ResponseEntity.ok(response);
+    }
+    
+    @Operation(summary = "Get product by ID")
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> getById(@PathVariable UUID id) {
+        var response = productService.getById(id);
         return ResponseEntity.ok(response);
     }
 
@@ -200,8 +211,8 @@ public class ProductController {
             )
         )
     })
-    @GetMapping("/{name}")
-    public ResponseEntity<ProductResponse> getByName(@PathVariable String name) {
+    @GetMapping("/search") 
+    public ResponseEntity<ProductResponse> getByName(@RequestParam String name) {
         var response = productService.getByName(name);
         return ResponseEntity.ok(response);
     }

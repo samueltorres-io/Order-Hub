@@ -140,23 +140,46 @@ class ProductServiceTest {
             user.setId(userId);
 
             UUID productId = UUID.randomUUID();
-            UpdateRequest req = new UpdateRequest(productId, "New Name", "New Desc", new BigDecimal("100"), 0, ProductStatus.active);
+            
+            // CORREÇÃO: O construtor do UpdateRequest não recebe mais o ID
+            UpdateRequest req = new UpdateRequest("New Name", "New Desc", new BigDecimal("100"), 0, ProductStatus.active);
 
             Product existingProduct = new Product();
             existingProduct.setId(productId);
-            existingProduct.setOwner(user); // Dono correto
+            existingProduct.setOwner(user);
 
             when(roleService.verifyRole(userId, "ADMIN")).thenReturn(true);
             when(productRepository.findById(productId)).thenReturn(Optional.of(existingProduct));
             when(productRepository.save(any(Product.class))).thenAnswer(i -> i.getArgument(0));
 
             // Act
-            CreatedResponse response = productService.update(user, req);
+            CreatedResponse response = productService.update(user, productId, req);
 
             // Assert
             assertThat(response.name()).isEqualTo("New Name");
             assertThat(response.description()).isEqualTo("New Desc");
             verify(productRepository).save(existingProduct);
+        }
+
+        @Test
+        @DisplayName("Should throw exception if user is not ADMIN during update")
+        void update_NotAdmin() {
+            // Arrange
+            UUID userId = UUID.randomUUID();
+            User user = new User();
+            user.setId(userId);
+            UUID productId = UUID.randomUUID();
+            
+            // CORREÇÃO: Removido ID do construtor
+            UpdateRequest req = new UpdateRequest("Name", "Desc", BigDecimal.TEN, 0, ProductStatus.active);
+
+            when(roleService.verifyRole(userId, "ADMIN")).thenReturn(false);
+
+            // Act & Assert
+            assertThatThrownBy(() -> productService.update(user, productId, req))
+                .isInstanceOf(AppException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.UNAUTHORIZED)
+                .hasFieldOrPropertyWithValue("status", HttpStatus.UNAUTHORIZED);
         }
 
         @Test
@@ -172,7 +195,9 @@ class ProductServiceTest {
             otherOwner.setId(otherUserId);
 
             UUID productId = UUID.randomUUID();
-            UpdateRequest req = new UpdateRequest(productId, "Name", "Desc", BigDecimal.TEN, 0, ProductStatus.active);
+            
+            // CORREÇÃO: Removido ID do construtor
+            UpdateRequest req = new UpdateRequest("Name", "Desc", BigDecimal.TEN, 0, ProductStatus.active);
 
             Product product = new Product();
             product.setId(productId);
@@ -182,7 +207,7 @@ class ProductServiceTest {
             when(productRepository.findById(productId)).thenReturn(Optional.of(product));
 
             // Act & Assert
-            assertThatThrownBy(() -> productService.update(user, req))
+            assertThatThrownBy(() -> productService.update(user, productId, req))
                 .isInstanceOf(AppException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.UNAUTHORIZED)
                 .hasFieldOrPropertyWithValue("status", HttpStatus.UNAUTHORIZED);
@@ -197,13 +222,57 @@ class ProductServiceTest {
             user.setId(userId);
             
             UUID productId = UUID.randomUUID();
-            UpdateRequest req = new UpdateRequest(productId, "Name", "Desc", BigDecimal.TEN, 0, ProductStatus.active);
+            
+            // CORREÇÃO: Removido ID do construtor
+            UpdateRequest req = new UpdateRequest("Name", "Desc", BigDecimal.TEN, 0, ProductStatus.active);
 
             when(roleService.verifyRole(userId, "ADMIN")).thenReturn(true);
             when(productRepository.findById(productId)).thenReturn(Optional.empty());
 
             // Act & Assert
-            assertThatThrownBy(() -> productService.update(user, req))
+            assertThatThrownBy(() -> productService.update(user, productId, req))
+                .isInstanceOf(AppException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PRODUCT_NOT_FOUND)
+                .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @Nested
+    @DisplayName("Tests for getById()")
+    class GetByIdTests {
+
+        @Test
+        @DisplayName("Should return product response when ID exists")
+        void getById_Success() {
+            // Arrange
+            UUID productId = UUID.randomUUID();
+            String name = "Test Product";
+            Product product = new Product();
+            product.setId(productId);
+            product.setName(name);
+            product.setDescription("Desc");
+            product.setPrice(BigDecimal.TEN);
+
+            when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+            // Act
+            ProductResponse response = productService.getById(productId);
+
+            // Assert
+            assertThat(response).isNotNull();
+            assertThat(response.id()).isEqualTo(productId);
+            assertThat(response.name()).isEqualTo(name);
+        }
+
+        @Test
+        @DisplayName("Should throw exception when product ID not found")
+        void getById_NotFound() {
+            // Arrange
+            UUID productId = UUID.randomUUID();
+            when(productRepository.findById(productId)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            assertThatThrownBy(() -> productService.getById(productId))
                 .isInstanceOf(AppException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PRODUCT_NOT_FOUND)
                 .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND);
@@ -270,9 +339,5 @@ class ProductServiceTest {
             assertThat(result).hasSize(1);
             assertThat(result.getContent().get(0).name()).isEqualTo("P1");
         }
-        
-        // O teste de "Invalid Pageable" foi removido pois o Service apenas repassa o objeto.
-        // A validação de nulo ou unpaged geralmente ocorre no Controller ou lança NPE se o repositório não suportar.
-        // Se quiser testar null, o repositório provavelmente lançaria exceção, mas não é lógica de negócio do service.
     }
 }

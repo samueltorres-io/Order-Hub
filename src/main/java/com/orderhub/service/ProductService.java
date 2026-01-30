@@ -1,6 +1,8 @@
 package com.orderhub.service;
 
 import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -49,13 +51,13 @@ public class ProductService {
     }
 
     @Transactional
-    public CreatedResponse update(User user, UpdateRequest req) {
+    public CreatedResponse update(User user, UUID id, UpdateRequest req) {
 
         if (!roleService.verifyRole(user.getId(), "ADMIN")) {
             throw new AppException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
         }
 
-        Product product = productRepository.findById(req.id())
+        Product product = productRepository.findById(id)
             .orElseThrow(() -> new AppException(
                 ErrorCode.PRODUCT_NOT_FOUND,
                 HttpStatus.NOT_FOUND
@@ -78,6 +80,19 @@ public class ProductService {
             updatedProduct.getDescription(), 
             updatedProduct.getPrice(), 
             updatedProduct.getStatus()
+        );
+    }
+
+    @Transactional
+    public ProductResponse getById(UUID id) {
+        Product product = productRepository.findById(id)
+            .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND));
+
+        return new ProductResponse(
+            product.getId(), 
+            product.getName(), 
+            product.getDescription(), 
+            product.getPrice()
         );
     }
 

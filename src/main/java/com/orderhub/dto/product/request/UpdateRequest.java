@@ -14,9 +14,6 @@ import jakarta.validation.constraints.Size;
 
 public record UpdateRequest(
 
-    @NotNull(message = "Product Id is mandatory")
-    UUID id,
-
     @NotBlank(message = "Name is mandatory")
     @Size(min = 3, max = 200, message = "Name must be between 3 and 200 characters long")
     String name,
@@ -34,7 +31,7 @@ public record UpdateRequest(
     @PositiveOrZero(message = "Stock cannot be negative")
     Integer stock,
 
-    @NotBlank(message = "Status is mandatory")
+    @NotNull(message = "Status is mandatory")
     ProductStatus status
 
 ) {}
